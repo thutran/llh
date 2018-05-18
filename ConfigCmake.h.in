@@ -1,0 +1,8 @@
+//
+// Created by thu on 4/27/18.
+//
+
+// the configured options and settings for likelihood project
+// @likelihood_VERSION_MAJOR@ will be replaced by settings in CMakeLists
+#define likelihood_VERSION_MAJOR @likelihood_VERSION_MAJOR@
+#define likelihood_VERSION_MINOR @likelihood_VERSION_MINOR@
