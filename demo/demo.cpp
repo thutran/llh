@@ -28,7 +28,7 @@ double my_f(const gsl_vector * x, void * prm){
 
 //    ParamNS::Param *param = static_cast<ParamNS::Param *>(prm);
     param->Absorb_gsl_vector(x);
-    m = new Model(trial, param);
+    m = new Model(trial, param); // TODO reuse population
     m->Run();
     return m->Calculate_Negative_Log_Likelihood();
 }
@@ -43,19 +43,19 @@ int main() {
     sw.Restart();
 
     std::vector<Trial*> trial_v;
-    std::vector<Drug*> drug_v;
-    drug_v.emplace_back(new Drug(4.2)); // artemether
-    drug_v.emplace_back(new Drug(108.0)); // lumefantrine
-//    drug_v.push_back(new Drug(0.1)); // dummy
+    std::vector<Drug*> act_al;
+    act_al.emplace_back(new Drug(4.2)); // artemether
+    act_al.emplace_back(new Drug(108.0)); // lumefantrine
+//    act_al.push_back(new Drug(0.1)); // dummy
 //    std::vector<Trial*> trial_v;
-    trial_v.emplace_back(new Trial(20, 18, drug_v, std::vector<unsigned int>({0,8,24,48})));
-    trial_v.emplace_back(new Trial(50, 50, drug_v, std::vector<unsigned int>({0,8,24,48})));
-    trial_v.emplace_back(new Trial(78, 62, drug_v, std::vector<unsigned int>({0,8,24,48})));
-    trial_v.emplace_back(new Trial(81, 62, drug_v, std::vector<unsigned int>({0,8,24,48})));
-    trial_v.emplace_back(new Trial(51, 50, drug_v, std::vector<unsigned int>({0,8,24,48})));
-    trial_v.emplace_back(new Trial(102, 85, drug_v, std::vector<unsigned int>({0,8,24,48})));
-//    trial_v.push_back(new Trial(1000, 1, drug_v, std::vector<unsigned int>({0,24,48,72,96})));
-//    trial_v.push_back(new Trial(1000, 1, drug_v, std::vector<unsigned int>({0,12,24,36,48,60,84,96,108})));
+    trial_v.emplace_back(new Trial(20, 18, act_al, std::vector<unsigned int>({0,8,24,48})));
+    trial_v.emplace_back(new Trial(50, 50, act_al, std::vector<unsigned int>({0,8,24,48})));
+    trial_v.emplace_back(new Trial(78, 62, act_al, std::vector<unsigned int>({0,8,24,48})));
+    trial_v.emplace_back(new Trial(81, 62, act_al, std::vector<unsigned int>({0,8,24,48})));
+    trial_v.emplace_back(new Trial(51, 50, act_al, std::vector<unsigned int>({0,8,24,48})));
+    trial_v.emplace_back(new Trial(102, 85, act_al, std::vector<unsigned int>({0,8,24,48})));
+//    trial_v.push_back(new Trial(1000, 1, act_al, std::vector<unsigned int>({0,24,48,72,96})));
+//    trial_v.push_back(new Trial(1000, 1, act_al, std::vector<unsigned int>({0,12,24,36,48,60,84,96,108})));
 
 //    ParamNS::Param *param = new ParamNS::Param(std::vector<double>({0.9,0.1}), 0.5); // params with initial values
     param = new ParamNS::Param(std::vector<double>({0.5,0.5}), 0.5); // params with initial values
@@ -111,7 +111,7 @@ int main() {
             if (status)
                 break;
 
-            status = gsl_multimin_test_size (s->size, 1e-3);
+            status = gsl_multimin_test_size (s->size, 5e-4);
 
 //        printf("%c ", '.');
 
@@ -125,7 +125,7 @@ int main() {
                 std::cout << "size: " << s->size << std::endl;
             }
         }
-        while (status == GSL_CONTINUE && iter < 1000);
+        while (status == GSL_CONTINUE && iter < 20);
 
         gsl_multimin_fminimizer_free (s);
         gsl_vector_free (x);
