@@ -94,8 +94,8 @@ int main() {
         gsl_vector_set (x, 2, 0.4); // sigma drug
 
         step_size = gsl_vector_alloc (3); // candidate params
-        gsl_vector_set (step_size, 0, 0.01); // pmax AM
-        gsl_vector_set (step_size, 1, 0.01); // pmax LM
+        gsl_vector_set (step_size, 0, 0.001); // pmax AM
+        gsl_vector_set (step_size, 1, 0.001); // pmax LM
         gsl_vector_set (step_size, 2, 0.1); // sigma drug
 
         T = gsl_multimin_fminimizer_nmsimplex; // type
@@ -125,7 +125,7 @@ int main() {
                 std::cout << "size: " << s->size << std::endl;
             }
         }
-        while (status == GSL_CONTINUE && iter < 20);
+        while (status == GSL_CONTINUE && iter < 3000);
 
         gsl_multimin_fminimizer_free (s);
         gsl_vector_free (x);
