@@ -30,7 +30,7 @@ const std::vector<double> Param::Get_Pmax_V() const {
     return pmax_v;
 }
 
-void Param::Absorb_gsl_vector(const gsl_vector *x) {
+void Param::Absorb_Gsl_Vector(const gsl_vector *x) {
     auto x_size = x->size;
     sigma = gsl_vector_get(x, --x_size);
     std::vector<double>().swap(pmax_v);

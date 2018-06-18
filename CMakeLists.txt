@@ -5,6 +5,7 @@ project(likelihood)
 set(${PROJECT_NAME}_VERSION_MAJOR 1)
 set(${PROJECT_NAME}_VERSION_MINOR 1)
 
+# from Nguyen's CMakeLists
 IF (CMAKE_VERSION VERSION_LESS 3.1)
     MESSAGE("It is not greater than 3.1")
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -12,7 +13,7 @@ IF (CMAKE_VERSION VERSION_LESS 3.1)
     endif ()
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 else ()
-    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 14)
     set(CMAKE_CXX_STANDARD_REQUIRED YES)
 endif (CMAKE_VERSION VERSION_LESS 3.1)
 

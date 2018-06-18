@@ -27,7 +27,7 @@ double my_f(const gsl_vector * x, void * prm){
         Helper::DeletePointer(m);
 
 //    ParamNS::Param *param = static_cast<ParamNS::Param *>(prm);
-    param->Absorb_gsl_vector(x);
+    param->Absorb_Gsl_Vector(x);
     m = new Model(trial, param); // TODO reuse population
     m->Run();
     return m->Calculate_Negative_Log_Likelihood();

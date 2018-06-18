@@ -43,7 +43,7 @@ namespace ParamNS{
         const double Get_Sigma() const ;
         const std::vector<double> Get_Pmax_V() const ;
 
-        void Absorb_gsl_vector(const gsl_vector *x);
+        void Absorb_Gsl_Vector(const gsl_vector *x);
     };
 }
 
