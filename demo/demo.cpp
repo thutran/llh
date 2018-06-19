@@ -159,7 +159,7 @@ int main() {
                 std::cout << "size: " << s->size << std::endl;
             }
         }
-        while (status == GSL_CONTINUE && iter < 3000);
+        while (status == GSL_CONTINUE && iter < 50000);
 
         gsl_multimin_fminimizer_free (s);
         gsl_vector_free (x);
