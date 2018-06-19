@@ -28,7 +28,7 @@ double my_f(const gsl_vector * x, void * prm){
 
     // check good set of param, if not, introduce penalty
     if (!param->Is_Good())
-        return (m->negative_log_likelihood + 10000);
+        return (m->negative_log_likelihood + 100);
 
     if (m)
         Helper::DeletePointer(m);
@@ -159,7 +159,7 @@ int main() {
                 std::cout << "size: " << s->size << std::endl;
             }
         }
-        while (status == GSL_CONTINUE && iter < 3000);
+        while (status == GSL_CONTINUE && iter < 100);
 
         gsl_multimin_fminimizer_free (s);
         gsl_vector_free (x);
