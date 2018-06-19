@@ -119,10 +119,16 @@ const unsigned int Model::Get_Cure_Number() const {
     return sum;
 }
 
-const double Model::Calculate_Negative_Log_Likelihood() const {
+const double Model::Calculate_Negative_Log_Likelihood()  {
     unsigned sim_cured = Get_Cure_Number();
     double prob = (double)sim_cured / (double)n_total;
+    negative_log_likelihood = -(log( rand_gen->PDF_Binomial(n_cured, n_total, prob) + 1e-8));
 //    return rand_gen->PDF_Binomial(n_cured, n_total, prob)
-    return -(log( rand_gen->PDF_Binomial(n_cured, n_total, prob) + 1e-8));;
+//    return -(log( rand_gen->PDF_Binomial(n_cured, n_total, prob) + 1e-8));
+    return negative_log_likelihood;
+}
+
+const double Model::Get_Negative_Log_Likelihood() const {
+    return negative_log_likelihood;
 }
 

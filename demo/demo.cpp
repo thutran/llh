@@ -23,11 +23,16 @@ double my_f(const gsl_vector * x, void * prm){
     extern Trial *trial;
     extern ParamNS::Param *param;
 
+//    ParamNS::Param *param = static_cast<ParamNS::Param *>(prm);
+    param->Absorb_Gsl_Vector(x);
+
+    // check good set of param, if not, introduce penalty
+//    if (!param->Is_Good())
+//        return (m->negative_log_likelihood + 10000);
+
     if (m)
         Helper::DeletePointer(m);
 
-//    ParamNS::Param *param = static_cast<ParamNS::Param *>(prm);
-    param->Absorb_Gsl_Vector(x);
     m = new Model(trial, param); // TODO reuse population
     m->Run();
     return m->Calculate_Negative_Log_Likelihood();
@@ -58,13 +63,28 @@ int main() {
 //    trial_v.push_back(new Trial(1000, 1, act_al, std::vector<unsigned int>({0,12,24,36,48,60,84,96,108})));
 
 //    ParamNS::Param *param = new ParamNS::Param(std::vector<double>({0.9,0.1}), 0.5); // params with initial values
-    param = new ParamNS::Param(std::vector<double>({0.5,0.5}), 0.5); // params with initial values
-
+//    param = new ParamNS::Param(std::vector<double>({0.5,0.5}), 0.5); // params with initial values
+    param = new ParamNS::Param(0, 0, 0, 0.0, std::vector<double>({0.99, 0.4})); // params with initial values and search indices
+    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIGMA,
+                                                      (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1
+    }));
 //    Model *m = new Model(trial_v.front(), param);
 //    m = new Model(trial_v.front(), param);
 //    m->Run();
 //    std::cout << "cured: " << m->Get_Cure_Number()
 //              << "\nnegative log-likelihood: " << m->Calculate_Negative_Log_Likelihood();
+
+    // test Absorb_Gsl_Vector in Param
+//    gsl_vector *x = gsl_vector_alloc (2); // candidate params
+//    gsl_vector_set (x, 0, 0.1); // sigma drug
+//    gsl_vector_set (x, 1, 0.9); // pmax AM
+//    param->Print();
+//    std::cout << "absorb!" << std::endl;
+//    param->Absorb_Gsl_Vector(x);
+//    param->Print();
+
+
+//    std::cout << (int)ParamNS::Non_Pmax_Param_Enum::SIZE << std::endl;
 
     ///////////////////// GSL minimizer
     while (!trial_v.empty()){
@@ -83,23 +103,21 @@ int main() {
         gsl_vector *x, *step_size;
         gsl_multimin_function my_func;
 
-        my_func.n = 3;
+        my_func.n = 2;
         my_func.f = &my_f;
         my_func.params = param;
 
         // Starting point, x = (5,7)
-        x = gsl_vector_alloc (3); // candidate params
-        gsl_vector_set (x, 0, 0.9); // pmax AM
-        gsl_vector_set (x, 1, 0.1); // pmax LM
-        gsl_vector_set (x, 2, 0.4); // sigma drug
+        x = gsl_vector_alloc (2); // candidate params
+        gsl_vector_set (x, 0, 0.2); // sigma drug
+        gsl_vector_set (x, 1, 0.8); // pmax LM
 
-        step_size = gsl_vector_alloc (3); // candidate params
-        gsl_vector_set (step_size, 0, 0.001); // pmax AM
+        step_size = gsl_vector_alloc (2); // candidate params
+        gsl_vector_set (step_size, 0, 0.1); // sigma drug
         gsl_vector_set (step_size, 1, 0.001); // pmax LM
-        gsl_vector_set (step_size, 2, 0.1); // sigma drug
 
         T = gsl_multimin_fminimizer_nmsimplex; // type
-        s = gsl_multimin_fminimizer_alloc (T, 3); // allocation
+        s = gsl_multimin_fminimizer_alloc (T, 2); // allocation
 
         gsl_multimin_fminimizer_set (s, &my_func, x, step_size);
 
@@ -113,14 +131,11 @@ int main() {
 
             status = gsl_multimin_test_size (s->size, 5e-4);
 
-//        printf("%c ", '.');
-
             if (status == GSL_SUCCESS){
                 printf ("Minimum found at:\n");
-                printf ("%5d %.5f %.5f %.5f %10.5f\n", iter,
+                printf ("%5d %.5f %.5f %10.5f\n", iter,
                         gsl_vector_get (s->x, 0),
                         gsl_vector_get (s->x, 1),
-                        gsl_vector_get (s->x, 2),
                         s->fval);
                 std::cout << "size: " << s->size << std::endl;
             }
@@ -131,42 +146,6 @@ int main() {
         gsl_vector_free (x);
         gsl_vector_free (step_size);
     }
-
-
-
-
-//    std::vector<double> x({4.0/3.0, 2.0/3.0, 1.0/3.0});
-//    std::vector<double> x1({1.0/3.0, 2.0/3.0, 4.0/3.0});
-//    std::vector<double> x2({2.0/3.0, 1.0/3.0, 4.0/3.0});
-    /*double xx(0.0), xx1(0.0), xx2(0.0);
-    for(int i =0; i<3; i++){
-        xx += round(x.at(i));
-        xx1 += round(x1.at(i));
-        xx2 += round(x2.at(i));
-    }
-    std::cout << xx << " " << xx1 << " " << xx2 << "_" << (xx == xx1);*/
-
-    /*Helper::PrintVector(x);
-    std::cout << std::endl;
-    Helper::RemoveFromVector<double>(x, 0);
-    Helper::PrintVector<double>(x);*/
-
-    /*std::vector<double>::iterator it = x1.begin();
-    it+=2;
-    Helper::PrintVector(x1);
-    std::cout << std::endl;
-//    std::cout << &(*it) << " " <<  &(*(it+1)) << " " << &(*(it+2)) << " " << std::endl;
-    for (std::vector<double>::iterator iit = x1.begin(); iit != x1.end(); ++iit)
-        std::cout << &(*iit) << " ";
-    std::cout << std::endl;
-    Helper::RemoveFromVector<double>(x1, it);
-    it = x1.begin();
-    Helper::PrintVector<double>(x1);
-    std::cout << std::endl;
-//    std::cout << &(*it) << " " <<  &(*(it+1)) << " " << &(*(it+2)) << " " << std::endl;
-    for (std::vector<double>::iterator iit = x1.begin(); iit != x1.end(); ++iit)
-        std::cout << &(*iit) << " ";
-    std::cout << std::endl;*/
 
     std::cout << "Elapsed time (sec): " << sw.ElapsedSec() << std::endl;
 

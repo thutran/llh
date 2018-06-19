@@ -22,6 +22,7 @@ public:
     RandomGenerator *rand_gen;
     std::vector<Person*> person_v;
     std::vector<Person*> updatable_person_v;
+    double negative_log_likelihood;
     unsigned int timer;
 
     Model(const unsigned int &pop_size, ParamNS::Param *param_set);
@@ -37,7 +38,8 @@ public:
     const ParamNS::Param* Get_Param_Set() const ;
     const Trial* Get_Trial() const ;
     const unsigned int Get_Timer() const ;
-    const double Calculate_Negative_Log_Likelihood() const ;
+    const double Calculate_Negative_Log_Likelihood() ;
+    const double Get_Negative_Log_Likelihood() const ;
 };
 
 
