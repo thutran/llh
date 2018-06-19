@@ -28,7 +28,7 @@ double my_f(const gsl_vector * x, void * prm){
 
     // check good set of param, if not, introduce penalty
     if (!param->Is_Good())
-        return (m->negative_log_likelihood + 100);
+        return (m->negative_log_likelihood + 1000);
 
     if (m)
         Helper::DeletePointer(m);
@@ -122,9 +122,9 @@ int main() {
 
         // Starting point, x = (5,7)
         x = gsl_vector_alloc (search_dim); // candidate params
-        gsl_vector_set (x, 0, 0.1); // pmax LM
-        gsl_vector_set (x, 1, 0.5); // pmax AM
-        gsl_vector_set (x, 2, 0.0); // sigma
+        gsl_vector_set (x, 0, 0.5); // pmax LM
+        gsl_vector_set (x, 1, 0.8); // pmax AM
+        gsl_vector_set (x, 2, 0.1); // sigma
         gsl_vector_set (x, 3, 9); // log10 pc max
 
         step_size = gsl_vector_alloc (search_dim); // define stepsize for each dimension
@@ -159,7 +159,7 @@ int main() {
                 std::cout << "size: " << s->size << std::endl;
             }
         }
-        while (status == GSL_CONTINUE && iter < 100);
+        while (status == GSL_CONTINUE && iter < 3000);
 
         gsl_multimin_fminimizer_free (s);
         gsl_vector_free (x);
