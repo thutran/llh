@@ -30,39 +30,38 @@ namespace ParamNS{
     const unsigned short DEFAULT_DRUG_SLOPE_MIN = 15;
     const unsigned short DEFAULT_DRUG_SLOPE_MAX = 25;
 
-    enum class Non_Pmax_Param_Enum{
+    enum class Non_Pmax_Param_Enum : unsigned short{
         LOG10_PC_MAX, // 0
         PA_MEAN, // 1
         PA_SD, // 2
-        SIGMA, // 3
-        SIZE
+        SIGMA // 3
     };
 
     class Param {
     public:
+        std::vector<double> non_pmax_v;
         std::vector<double> pmax_v; // vector of pmax for each antimalarial in the combination treatment
-        double sigma; // representation of variation in drug absorption
-        std::vector<unsigned short> search_i;
-        unsigned short log10_parasite_count_max = DEFAULT_LOG10_PARASITE_COUNT_MAX;
-        unsigned short parasite_age_mean = DEFAULT_PARASITE_AGE_MEAN;
-        unsigned short parasite_age_std_deviation = DEFAULT_PARASITE_AGE_STD_DEVIATION;
+        std::vector<unsigned short> search_i; // indices of param to be optimized
 //        unsigned short pmf=10; // parasite multiplicative factor
 
         Param();
-        Param(const double& drug_absorption_sigma, const std::vector<double>& pmax_vector);
-        Param(const unsigned short &log10_parasite_count_max, const unsigned short &parasite_age_mean,
-              const unsigned short &parasite_age_sd, const double &drug_absorption_sigma,
+        explicit Param(const unsigned short &number_drugs);
+        Param(const std::vector<double> &non_pmax_vector,
               const std::vector<double> &pmax_vector);
         ~Param();
 
         void Print();
         const double Get_Sigma() const ;
         const std::vector<double> Get_Pmax_V() const ;
+        const std::vector<double> Get_Non_Pmax_V() const ;
+        void Init_Default_Param(const unsigned short &n_drugs);
         void Set_Search_I(const std::vector<unsigned short> &search_indices);
-        void Set_Param_I(const std::vector<unsigned short> &param_indices);
         void Absorb_Gsl_Vector(const gsl_vector *x);
+        void Replace_Param(const std::vector<unsigned short> &indices, const std::vector<double> &values);
         const bool Is_Good() const ;
         const bool Has_Good_Pmax() const ;
+        const unsigned short Size_Non_Pmax_Param_Enum() const ;
+        const double Get_Non_Pmax_Param(const unsigned short &index) const ;
     };
 
 }

@@ -41,11 +41,15 @@ void Person::Init_Person() {
 
 void Person::Init_Parasite_Clone() {
     const RandomGenerator *rgen = model->Get_RandomGenerator();
-//    unsigned long long total = (unsigned long long)(rgen->Rand_Uniform(1,9) * pow(10, rgen->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MAX)));
-    double total = rgen->Rand_Uniform(1,9) * pow(10, rgen->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MAX));
-//    unsigned long long total = (unsigned long long) ((double)ParamNS::DEFAULT_TOTAL_PARASITE_COUNT * pow(10, rgen->Rand_Normal(0,1)));
-    unsigned short mean_age = (unsigned short)rgen->Rand_Uniform(ParamNS::DEFAULT_PARASITE_AGE_MEAN - 10, ParamNS::DEFAULT_PARASITE_AGE_MEAN + 10);
-    unsigned short sd_age = (unsigned short)rgen->Rand_Uniform(ParamNS::DEFAULT_PARASITE_AGE_STD_DEVIATION - 5, ParamNS::DEFAULT_PARASITE_AGE_STD_DEVIATION + 5);
+    const ParamNS::Param *prm = model->Get_Param_Set();
+    auto prm_log10_pc_max = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::LOG10_PC_MAX);
+    auto prm_pa_mean = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_MEAN);
+    auto prm_pa_sd = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_SD);
+//    double total = rgen->Rand_Uniform(1,9) * pow(10, rgen->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MAX));
+    double total = rgen->Rand_Uniform(1,9) * pow(10,
+                                                 rgen->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
+    unsigned short mean_age = (unsigned short)rgen->Rand_Uniform(prm_pa_mean - 10, prm_pa_mean + 10);
+    unsigned short sd_age = (unsigned short)rgen->Rand_Uniform(prm_pa_sd - 5, prm_pa_sd + 5);
 //    std::cout << mean_age << " " << sd_age << std::endl;
 //    std::cout << " total: " << total << " ";
     parsite_clone = new ParasiteClone(this, total, mean_age , sd_age);
@@ -118,7 +122,6 @@ void Person::Update_Person() {
 }
 
 const bool Person::Is_Cured() const {
-//    return ((double)ParamNS::DEFAULT_PARASITE_DETECTION_COUNT - (double)parsite_clone->Get_Total_Parasite_Count() > 0.0);
     return ((double)ParamNS::DEFAULT_PARASITE_DETECTION_COUNT - parsite_clone->Get_Total_Parasite_Count() > 0.0);
 }
 

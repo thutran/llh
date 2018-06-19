@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(likelihood)
 
 set(${PROJECT_NAME}_VERSION_MAJOR 1)
-set(${PROJECT_NAME}_VERSION_MINOR 1)
+set(${PROJECT_NAME}_VERSION_MINOR 2)
 
 # from Nguyen's CMakeLists
 IF (CMAKE_VERSION VERSION_LESS 3.1)

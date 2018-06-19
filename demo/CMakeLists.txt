@@ -10,5 +10,5 @@ find_package(GSL REQUIRED)
 
 # Link the executable to the Likelihood library. Since the Likelihood library has
 # public include directories we will use those link directories when building llhDemo
-#target_link_libraries(llhDemo LINK_PUBLIC External GSL::gsl GSL::gslcblas LINK_PUBLIC Likelihood)
-target_link_libraries (llhDemo LINK_PUBLIC External GSL::gsl GSL::gslcblas Likelihood)
+#target_link_libraries (llhDemo LINK_PUBLIC Likelihood External GSL::gsl GSL::gslcblas)
+target_link_libraries(llhDemo LINK_PRIVATE Likelihood External GSL::gsl GSL::gslcblas)
