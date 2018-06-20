@@ -12,12 +12,9 @@
 #include "Drug.h"
 
 ParasiteClone::ParasiteClone(Person *person) : person(person){
-    const ParamNS::Param *prm = person->Get_Model()->Get_Param_Set();
-    auto prm_pa_mean = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_MEAN);
-    auto prm_pa_sd = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_SD);
     Distribute_To_Bins(ParamNS::DEFAULT_TOTAL_PARASITE_COUNT,
-                       (unsigned short)prm_pa_mean,
-                       (unsigned short)prm_pa_sd); // total 10^11
+                       ParamNS::DEFAULT_PARASITE_AGE_MEAN,
+                       ParamNS::DEFAULT_PARASITE_AGE_STD_DEVIATION); // total 10^11
     Init_Max_Affected_Fraction_Bins();
 }
 

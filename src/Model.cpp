@@ -24,8 +24,8 @@ Model::Model(const unsigned int &pop_size, const unsigned int &total_days, Param
 
 
 Model::Model(Trial *trial, ParamNS::Param *param_set) : trial(trial), param(param_set){
-    n_total = trial->Get_Pop_Size();
-    n_cured = trial->Get_Cured();
+    n_total = trial->Get_Pop_Size() * scale_up_n_total;
+//    n_cured = trial->Get_Cured();
     n_hour = Helper::DEFAULT_RUNTIME;
     Init_Model();
 }
@@ -121,8 +121,10 @@ const unsigned int Model::Get_Cure_Number() const {
 
 const double Model::Calculate_Negative_Log_Likelihood()  {
     unsigned sim_cured = Get_Cure_Number();
+    unsigned trial_cured = trial->Get_Cured();
+    unsigned trial_total = trial->Get_Pop_Size();
     double prob = (double)sim_cured / (double)n_total;
-    negative_log_likelihood = -(log( rand_gen->PDF_Binomial(n_cured, n_total, prob) + 1e-8));
+    negative_log_likelihood = -(log( rand_gen->PDF_Binomial(trial_cured, trial_total, prob) + 1e-8));
 //    return rand_gen->PDF_Binomial(n_cured, n_total, prob)
 //    return -(log( rand_gen->PDF_Binomial(n_cured, n_total, prob) + 1e-8));
     return negative_log_likelihood;

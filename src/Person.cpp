@@ -19,12 +19,6 @@ Person::Person(Model *model) : model(model) {
     Init_Person();
 }
 
-/*Person::Person(Model *model, const long long &total_parasite_count, const unsigned short &mean_age,
-               const unsigned short &parasite_count_sd, const double &drug_conc_sigma) : model(model), drug_absorption_sigma(drug_conc_sigma) {
-    Init_Person();
-    Init_Parasite_Clone(total_parasite_count, mean_age, parasite_count_sd);
-}*/
-
 Person::~Person() {
     Helper::DeletePointer<ParasiteClone>(parsite_clone);
     Helper::DeleteVector<Drug*>(drug_v);
@@ -43,13 +37,15 @@ void Person::Init_Parasite_Clone() {
     const RandomGenerator *rgen = model->Get_RandomGenerator();
     const ParamNS::Param *prm = model->Get_Param_Set();
     auto prm_log10_pc_max = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::LOG10_PC_MAX);
-    auto prm_pa_mean = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_MEAN);
-    auto prm_pa_sd = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_SD);
+//    auto prm_pa_mean = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_MEAN);
+//    auto prm_pa_sd = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_SD);
 //    double total = rgen->Rand_Uniform(1,9) * pow(10, rgen->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MAX));
     double total = rgen->Rand_Uniform(1,9) * pow(10,
                                                  rgen->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
-    unsigned short mean_age = (unsigned short)rgen->Rand_Uniform(prm_pa_mean - 10, prm_pa_mean + 10);
-    unsigned short sd_age = (unsigned short)rgen->Rand_Uniform(prm_pa_sd - 5, prm_pa_sd + 5);
+//    unsigned short mean_age = (unsigned short)rgen->Rand_Normal(prm_pa_mean, 5);
+//    unsigned short sd_age = (unsigned short)rgen->Rand_Normal(prm_pa_sd, 3);
+    unsigned short mean_age = (unsigned short)rgen->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
+    unsigned short sd_age = (unsigned short)rgen->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
 //    std::cout << mean_age << " " << sd_age << std::endl;
 //    std::cout << " total: " << total << " ";
     parsite_clone = new ParasiteClone(this, total, mean_age , sd_age);

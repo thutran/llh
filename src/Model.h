@@ -14,9 +14,10 @@ class Person;
 
 class Model {
 public:
-    unsigned int n_total; // total population
-    unsigned int n_cured; // number of cured cases at day 28
-    unsigned int n_hour; // duration of simulation in hour
+    unsigned scale_up_n_total = 1;
+    unsigned n_total; // total population
+//    unsigned n_cured; // number of cured cases at day 28
+    unsigned n_hour; // duration of simulation in hour
     ParamNS::Param *param; // set of parameters to run the PKPD model
     Trial *trial;
     RandomGenerator *rand_gen;

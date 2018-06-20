@@ -32,7 +32,7 @@ RandomGenerator::~RandomGenerator() {
 
 void RandomGenerator::Init_RandomGenerator() {
     if (seed == Helper::MAX_UNSIGNED_INT)
-        seed = std::time(NULL) * std::hash<std::thread::id>{}(std::this_thread::get_id())/4294967295; // 4294967295 = max value unsigned int
+        seed = std::time(NULL) * std::hash<std::thread::id>{}(std::this_thread::get_id())/Helper::MAX_UNSIGNED_INT; // 4294967295 = max value unsigned int
 
     rng = gsl_rng_alloc(RNG_T);
     gsl_rng_set(rng, seed);

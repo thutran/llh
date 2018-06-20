@@ -18,7 +18,7 @@ Param::Param(const unsigned short &number_drugs) {
 }
 
 Param::Param(const std::vector<double> &non_pmax_vector, const std::vector<double> &pmax_vector) {
-    if (non_pmax_vector.size() != Size_Non_Pmax_Param_Enum())
+    if (non_pmax_vector.size() != (unsigned short)Non_Pmax_Param_Enum::SIZE)
         throw std::runtime_error("Mismatch non-pmax parameter set size");
     std::vector<double>().swap(non_pmax_v);
     std::vector<double>().swap(pmax_v);
@@ -66,15 +66,19 @@ void Param::Absorb_Gsl_Vector(const gsl_vector *x) {
     auto pmax_size = pmax_v.size();
     for (auto &i : search_i){
         if (i == (unsigned short)Non_Pmax_Param_Enum::LOG10_PC_MAX)
-            non_pmax_v[(unsigned short)Non_Pmax_Param_Enum::LOG10_PC_MAX] = (unsigned short) gsl_vector_get(x, x_i++);
+            non_pmax_v[(unsigned short)Non_Pmax_Param_Enum::LOG10_PC_MAX] = gsl_vector_get(x, x_i++);
         else if (i == (unsigned short)Non_Pmax_Param_Enum::PA_MEAN)
-            non_pmax_v[(unsigned short)Non_Pmax_Param_Enum::PA_MEAN] = (unsigned short) gsl_vector_get(x, x_i++);
+            non_pmax_v[(unsigned short)Non_Pmax_Param_Enum::PA_MEAN] = gsl_vector_get(x, x_i++);
         else if (i == (unsigned short)Non_Pmax_Param_Enum::PA_SD)
-            non_pmax_v[(unsigned short)Non_Pmax_Param_Enum::PA_SD] = (unsigned short) gsl_vector_get(x, x_i++);
+            non_pmax_v[(unsigned short)Non_Pmax_Param_Enum::PA_SD] = gsl_vector_get(x, x_i++);
         else if (i == (unsigned short)Non_Pmax_Param_Enum::SIGMA)
             non_pmax_v[(unsigned short)Non_Pmax_Param_Enum::SIGMA] = gsl_vector_get(x, x_i++);
-        else if (i > (unsigned short)Non_Pmax_Param_Enum::SIGMA){
-            unsigned short tmp_i = i - Size_Non_Pmax_Param_Enum();
+//        else if (i == (unsigned short)Non_Pmax_Param_Enum::EC50)
+//            non_pmax_v[(unsigned short)Non_Pmax_Param_Enum::EC50] = gsl_vector_get(x, x_i++);
+//        else if (i == (unsigned short)Non_Pmax_Param_Enum::SLOPE)
+//            non_pmax_v[(unsigned short)Non_Pmax_Param_Enum::SLOPE] = gsl_vector_get(x, x_i++);
+        else if (i >= (unsigned short)Non_Pmax_Param_Enum::SIZE){
+            unsigned short tmp_i = i - (unsigned short)Non_Pmax_Param_Enum::SIZE;
             if (tmp_i >= pmax_size)
                 throw std::runtime_error("Search parameter index out of bound");
             else
@@ -108,6 +112,8 @@ void Param::Init_Default_Param(const unsigned short &n_drugs) {
     non_pmax_v.emplace_back(ParamNS::DEFAULT_PARASITE_AGE_MEAN);
     non_pmax_v.emplace_back(ParamNS::DEFAULT_PARASITE_AGE_STD_DEVIATION);
     non_pmax_v.emplace_back(ParamNS::DEFAULT_DRUG_SIGMA);
+//    non_pmax_v.emplace_back((ParamNS::DEFAULT_EC50_MAX - ParamNS::DEFAULT_EC50_MIN)/2.0);
+//    non_pmax_v.emplace_back((ParamNS::DEFAULT_DRUG_SLOPE_MAX - ParamNS::DEFAULT_DRUG_SLOPE_MIN)/2.0);
     for (unsigned short i=0; i<n_drugs; ++i)
         pmax_v.emplace_back(ParamNS::DEFAULT_PMAX);
 }
@@ -131,8 +137,12 @@ void Param::Replace_Param(const std::vector<unsigned short> &indices, const std:
             non_pmax_v[(unsigned short)Non_Pmax_Param_Enum::PA_SD] = values[v_i++];
         else if (i == (unsigned short)Non_Pmax_Param_Enum::SIGMA)
             non_pmax_v[(unsigned short)Non_Pmax_Param_Enum::SIGMA] = values[v_i++];
-        else if (i > (unsigned short)Non_Pmax_Param_Enum::SIGMA){
-            unsigned short tmp_i = i - Size_Non_Pmax_Param_Enum();
+//        else if (i == (unsigned short)Non_Pmax_Param_Enum::EC50)
+//            non_pmax_v[(unsigned short)Non_Pmax_Param_Enum::EC50] = values[v_i++];
+//        else if (i == (unsigned short)Non_Pmax_Param_Enum::SLOPE)
+//            non_pmax_v[(unsigned short)Non_Pmax_Param_Enum::SLOPE] = values[v_i++];
+        else if (i >= (unsigned short)Non_Pmax_Param_Enum::SIZE){
+            unsigned short tmp_i = i - (unsigned short)Non_Pmax_Param_Enum::SIZE;
             if (tmp_i >= pmax_size)
                 throw std::runtime_error("Replacing parameter index out of bound");
             else
@@ -141,12 +151,8 @@ void Param::Replace_Param(const std::vector<unsigned short> &indices, const std:
     }
 }
 
-const unsigned short Param::Size_Non_Pmax_Param_Enum() const {
-    return ((unsigned short)Non_Pmax_Param_Enum::SIGMA + 1);
-}
-
 const double Param::Get_Non_Pmax_Param(const unsigned short &index) const {
-    if (index >= Size_Non_Pmax_Param_Enum())
+    if (index >= (unsigned short)Non_Pmax_Param_Enum::SIZE)
         throw std::runtime_error("Index out of bound");
     else
         return non_pmax_v[index];

@@ -12,17 +12,17 @@ namespace ParamNS{
     const double DEFAULT_PMAX = 0.99;
     const unsigned short DEFAULT_PMF = 1; // maybe the scenario we're trying to simulate is after the growth phase of the parasite
     const unsigned short MAX_PARASITE_HOUR = 48;
-    const unsigned long long DEFAULT_TOTAL_PARASITE_COUNT = 100000000000; // 10^11
+    const double DEFAULT_TOTAL_PARASITE_COUNT = 1e11;
 //    const unsigned long long DEFAULT_TOTAL_PARASITE_COUNT = 10000000000; // 10^10
     const unsigned short DEFAULT_LOG10_PARASITE_COUNT_MIN = 8;
-    const unsigned short DEFAULT_LOG10_PARASITE_COUNT_MAX = 10;
-    const unsigned long long DEFAULT_PARASITE_DEADLY_COUNT = 1000000000000000; // 10^15
+    const unsigned short DEFAULT_LOG10_PARASITE_COUNT_MAX = 12;
+    const double DEFAULT_PARASITE_DEADLY_COUNT = 1e15;
     const unsigned short DEFAULT_PARASITE_AGE_MEAN = 26;
-//    const unsigned short DEFAULT_PARASITE_AGE_MEAN_MIN = 0;
-//    const unsigned short DEFAULT_PARASITE_AGE_MEAN_MAX = 48;
     const unsigned short DEFAULT_PARASITE_AGE_STD_DEVIATION = 12;
-    const unsigned int DEFAULT_PARASITE_EFFECTIVE_COUNT = 100;
-    const unsigned int DEFAULT_PARASITE_DETECTION_COUNT = 100000000;
+//    const unsigned short DEFAULT_PARASITE_AGE_MEAN_MIN = 0;
+//    const unsigned short DEFAULT_PARASITE_AGE_MEAN_MAX = 47;
+    const unsigned DEFAULT_PARASITE_EFFECTIVE_COUNT = 100;
+    const unsigned DEFAULT_PARASITE_DETECTION_COUNT = 100000000; // 10^8
     const double DEFAULT_DRUG_SIGMA = 0.2; // absorption sigma
     const double DEFAULT_DRUG_EFFECTIVE_CONC = 0.001;
     const double DEFAULT_EC50_MIN = 0.6;
@@ -34,7 +34,10 @@ namespace ParamNS{
         LOG10_PC_MAX, // 0
         PA_MEAN, // 1
         PA_SD, // 2
-        SIGMA // 3
+        SIGMA, // 3
+//        EC50,
+//        SLOPE,
+        SIZE
     };
 
     class Param {
@@ -60,7 +63,6 @@ namespace ParamNS{
         void Replace_Param(const std::vector<unsigned short> &indices, const std::vector<double> &values);
         const bool Is_Good() const ;
         const bool Has_Good_Pmax() const ;
-        const unsigned short Size_Non_Pmax_Param_Enum() const ;
         const double Get_Non_Pmax_Param(const unsigned short &index) const ;
     };
 
