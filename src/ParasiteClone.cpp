@@ -27,43 +27,46 @@ ParasiteClone::ParasiteClone(Person *person,
 }
 
 ParasiteClone::~ParasiteClone() {
-    Helper::DeleteVector<double>(max_afftected_fraction_bins);
+    Helper::DeleteVector<double>(max_affected_fraction_bins);
     Helper::DeleteVector<double>(parasite_count_bins);
 }
 
+// TODO needs optimizing
 const double ParasiteClone::Get_Total_Parasite_Count() {
-    if (parasite_count_bins.empty())
-        return 0;
-    else if (!dirty)
-        return total_count;
-    else {
-        total_count = 0.0;
-        for (auto& bin : parasite_count_bins){
-//            std::cout << " " << bin << " ";
-            total_count += round(bin);
-        }
-        dirty = false;
-        return total_count;
-    }
-    /*total_count = 0;
-    for (auto& bin : parasite_count_bins){
-        total_count += bin;
-    }
-    return total_count;*/
+    return (parasite_count_bins.empty()) ? 0 : total_count;
+//    if (parasite_count_bins.empty())
+//        return 0;
+//    else if (!dirty)
+//        return total_count;
+//    else {
+//        total_count = 0.0;
+//        for (auto& bin : parasite_count_bins){
+////            std::cout << " " << bin << " ";
+//            total_count += round(bin);
+//        }
+//        dirty = false;
+//        return total_count;
+//    }
+//    /*total_count = 0;
+//    for (auto& bin : parasite_count_bins){
+//        total_count += bin;
+//    }
+//    return total_count;*/
 }
 
 void ParasiteClone::Init_Max_Affected_Fraction_Bins() {
-    max_afftected_fraction_bins.reserve(ParamNS::MAX_PARASITE_HOUR);
-    max_afftected_fraction_bins.emplace_back(0); // new-borns are assumed to be new wave of parasites, so the effect of drug is considered to be too little
+    max_affected_fraction_bins.reserve(ParamNS::MAX_PARASITE_HOUR);
+    max_affected_fraction_bins.emplace_back(0); // new-borns are assumed to be new wave of parasites, so the effect of drug is considered to be too little
     const RandomGenerator *rgen = person->Get_Model()->Get_RandomGenerator();
     for (unsigned short i=1; i<ParamNS::MAX_PARASITE_HOUR; i++){
-        max_afftected_fraction_bins.emplace_back( rgen->Rand_Beta(ParamNS::MAX_PARASITE_HOUR - i, i) );
+        max_affected_fraction_bins.emplace_back( rgen->Rand_Beta(ParamNS::MAX_PARASITE_HOUR - i, i) );
     }
 }
 
 void ParasiteClone::Distribute_To_Bins(const double &total_parasite_count,
                                        const unsigned short &mean_age,
                                        const unsigned short &std_deviation) {
+    total_count = total_parasite_count;
     std::vector<double> age_prob_v; // probability of parasites being distributed into a specific age bin
     age_prob_v.reserve(ParamNS::MAX_PARASITE_HOUR);
     parasite_count_bins = std::vector<double>(ParamNS::MAX_PARASITE_HOUR,0); // initialize 48 bins
@@ -91,50 +94,88 @@ void ParasiteClone::Distribute_To_Bins(const double &total_parasite_count,
         parasite_count_bins[i] += round(sub_bins[i]);
     }
 
-    dirty = true;
+//    dirty = false;
 
     Helper::DeleteVector<double>(age_prob_v);
     Helper::DeleteVector<unsigned int>(sub_bins);
 }
 
+// TODO needs optimizing
 void ParasiteClone::Killed_By_Drug(const std::vector<Drug*>& drug_v) {
 //    std::cout << " " << "total_count " << total_count << " Get_Total " << Get_Total_Parasite_Count() << " ";
-    for (auto& d : drug_v){
-        if (d->Get_Current_Concentration() > ParamNS::DEFAULT_DRUG_EFFECTIVE_CONC){
-            double pmax=d->Get_Pmax(), ec50=d->Get_Ec50(), slope=d->Get_Slope(), conc=d->Get_Current_Concentration();
-            const double old_back = round(parasite_count_bins.back());
 
-            // [] accessor
-            for (unsigned short i=ParamNS::MAX_PARASITE_HOUR - 1; i>0; --i){
-                double removal = pmax * pow(conc, slope) / ( pow(conc, slope) + pow(ec50, slope)  );
-//                parasite_count_bins.at(i) = (unsigned long long) (((double) parasite_count_bins.at(i-1)) * (1.0 - max_afftected_fraction_bins.at(i) * removal));
-//                parasite_count_bins.at(i) = round(parasite_count_bins.at(i-1) * (1.0 - max_afftected_fraction_bins.at(i) * removal));
-                parasite_count_bins[i] = round(parasite_count_bins[i-1] * (1.0 - max_afftected_fraction_bins[i] * removal));
-            }
-
-            // using iterators instead
-            /*auto c_i = parasite_count_bins.end();
-            auto a_i = max_afftected_fraction_bins.end();
-            while (c_i > (parasite_count_bins.begin() + 1) ){
-                --c_i;
-                --a_i;
-                double removal = pmax * pow(conc, slope) / ( pow(conc, slope) + pow(ec50, slope)  );
-                (*c_i) = round( (*(c_i-1)) * (1.0 - (*a_i)*removal) );
-            }*/
-
-            // using vector::data()
-            /*auto *c_p = parasite_count_bins.data();
-            auto *a_p = max_afftected_fraction_bins.data();
-            for (unsigned short i=ParamNS::MAX_PARASITE_HOUR - 1; i>0; --i){
-                double removal = pmax * pow(conc, slope) / ( pow(conc, slope) + pow(ec50, slope)  );
-                c_p[i] = round( c_p[i-1] * (1.0 - a_p[i] * removal) );
-            }*/
-
-
-            // schizogony
-            parasite_count_bins.front() = round(old_back * ParamNS::DEFAULT_PMF);
+    double min_survival = 1.0;
+    for (auto& d: drug_v){
+        if (d->Get_Current_Concentration() > ParamNS::DEFAULT_DRUG_EFFECTIVE_CONC) {
+            double pmax = d->Get_Pmax(), ec50 = d->Get_Ec50(), slope = d->Get_Slope(), conc = d->Get_Current_Concentration();
+            min_survival *= 1.0 - pmax * pow(conc, slope) / (pow(conc, slope) + pow(ec50, slope));
         }
     }
+
+    const double old_back = round(parasite_count_bins.back());
+    double tmp_total_count = 0.0;
+    double tmp_count = 0.0;
+    // [] accessor
+    for (unsigned short i=ParamNS::MAX_PARASITE_HOUR - 1; i>0; --i){
+        double max_affected = max_affected_fraction_bins[i];
+        tmp_count = round(parasite_count_bins[i-1] * (max_affected * min_survival + (1.00 -  max_affected)) );
+        parasite_count_bins[i] = tmp_count;
+        tmp_total_count += tmp_count;
+    }
+    tmp_count = round(old_back * ParamNS::DEFAULT_PMF);
+    parasite_count_bins.front() = tmp_count;
+    tmp_total_count += tmp_count;
+
+    total_count = tmp_total_count;
+
+
+//    for (auto& d : drug_v){
+//        if (d->Get_Current_Concentration() > ParamNS::DEFAULT_DRUG_EFFECTIVE_CONC){
+//            double pmax=d->Get_Pmax(), ec50=d->Get_Ec50(), slope=d->Get_Slope(), conc=d->Get_Current_Concentration();
+//            double removal = pmax * pow(conc, slope) / ( pow(conc, slope) + pow(ec50, slope)  );
+//            const double old_back = round(parasite_count_bins.back());
+//
+//            // [] accessor
+//            for (unsigned short i=ParamNS::MAX_PARASITE_HOUR - 1; i>0; --i){
+////                parasite_count_bins[i] = round(parasite_count_bins[i-1] * (1.0 - max_affected_fraction_bins[i] * removal));
+//                tmp_count = round(parasite_count_bins[i-1] * (1.0 - max_affected_fraction_bins[i] * removal));
+//                parasite_count_bins[i] = tmp_count;
+//                tmp_total_count += tmp_count;
+//            }
+//
+//            // using iterators instead
+//            /*auto c_i = parasite_count_bins.end();
+//            auto a_i = max_affected_fraction_bins.end();
+//            while (c_i > (parasite_count_bins.begin() + 1) ){
+//                --c_i;
+//                --a_i;
+//                double removal = pmax * pow(conc, slope) / ( pow(conc, slope) + pow(ec50, slope)  );
+//                (*c_i) = round( (*(c_i-1)) * (1.0 - (*a_i)*removal) );
+//            }*/
+//
+//            // using vector::data()
+//            /*auto *c_p = parasite_count_bins.data();
+//            auto *a_p = max_affected_fraction_bins.data();
+//            for (unsigned short i=ParamNS::MAX_PARASITE_HOUR - 1; i>0; --i){
+//                double removal = pmax * pow(conc, slope) / ( pow(conc, slope) + pow(ec50, slope)  );
+//                c_p[i] = round( c_p[i-1] * (1.0 - a_p[i] * removal) );
+//            }*/
+//
+//
+//            // schizogony
+////            parasite_count_bins.front() = round(old_back * ParamNS::DEFAULT_PMF);
+//            tmp_count = round(old_back * ParamNS::DEFAULT_PMF);
+//            parasite_count_bins.front() = tmp_count;
+//            tmp_total_count += tmp_count;
+//
+//            total_count = tmp_total_count;
+////            dirty = false;
+//        }
+//    }
+
+
+
+
 }
 
 void ParasiteClone::Update_ParasiteClone() {
@@ -142,7 +183,7 @@ void ParasiteClone::Update_ParasiteClone() {
 //        if (Get_Total_Parasite_Count() > ParamNS::DEFAULT_PARASITE_EFFECTIVE_COUNT &&
 //                Get_Total_Parasite_Count() < ParamNS::DEFAULT_PARASITE_DEADLY_COUNT){
 //        if (Get_Total_Parasite_Count() < ParamNS::DEFAULT_PARASITE_DEADLY_COUNT){ // checking here is redundant
-            dirty = true;
+//            dirty = true;
             Killed_By_Drug(person->Get_Drug_V());
 //        }
     }

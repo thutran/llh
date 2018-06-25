@@ -19,6 +19,14 @@ Person::Person(Model *model) : model(model) {
     Init_Person();
 }
 
+Person::Person(Model *model, const double &total_parasite_count, const unsigned short &mean_age,
+               const unsigned short &parasite_count_sd) : model(model) {
+    new_dose_hour_v = model->Get_Trial()->Get_New_Dose_Hour_V();
+    Init_Parasite_Clone(total_parasite_count, mean_age, parasite_count_sd);
+    Init_Drug_V();
+    updatable = true;
+}
+
 Person::~Person() {
     Helper::DeletePointer<ParasiteClone>(parsite_clone);
     Helper::DeleteVector<Drug*>(drug_v);
@@ -26,9 +34,7 @@ Person::~Person() {
 
 void Person::Init_Person() {
     new_dose_hour_v = model->Get_Trial()->Get_New_Dose_Hour_V();
-    // parasite population
     Init_Parasite_Clone();
-    // drug vector
     Init_Drug_V();
     updatable = true;
 }
@@ -51,6 +57,14 @@ void Person::Init_Parasite_Clone() {
     parsite_clone = new ParasiteClone(this, total, mean_age , sd_age);
 }
 
+void Person::Init_Parasite_Clone(const double &total_parasite_count, const unsigned short &mean_age,
+                                 const unsigned short &parasite_count_sd) {
+    // clear if parasite_clone already exists
+    // check bound mean_age, sd
+
+    parsite_clone = new ParasiteClone(this, total_parasite_count, mean_age, parasite_count_sd);
+}
+
 void Person::Init_Drug_V() {
     const RandomGenerator *rgen = model->Get_RandomGenerator();
     const double drug_sigma = model->Get_Param_Set()->Get_Sigma();
@@ -67,9 +81,12 @@ void Person::Init_Drug_V() {
     }
 }
 
-void Person::Init_Parasite_Clone(const double &total_parasite_count, const unsigned short &mean_age,
-                                 const unsigned short &parasite_count_sd) {
-    parsite_clone = new ParasiteClone(this, total_parasite_count, mean_age, parasite_count_sd);
+void Person::Add_Drug(const double &init_concentration, const double &half_life, const double &pmax, const double &ec50,
+                      const unsigned short &slope) {
+    // check if drug already in vector
+    // check bound pmax
+
+    drug_v.emplace_back(new Drug(init_concentration, half_life, pmax, ec50, slope));
 }
 
 const Model *Person::Get_Model() const {
@@ -124,6 +141,7 @@ const bool Person::Is_Cured() const {
 const bool Person::Is_Updatable() const {
     return updatable;
 }
+
 
 
 

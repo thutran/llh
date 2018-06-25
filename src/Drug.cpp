@@ -9,10 +9,16 @@
 #include "Param.h"
 
 Drug::Drug(const double &elimination_halflife_in_hour) : init_concentration(1.0), halflife(elimination_halflife_in_hour) {
+    ec50 = ParamNS::DEFAULT_EC50_MIN;
+    slope = ParamNS::DEFAULT_DRUG_SLOPE_MIN;
+    pmax = ParamNS::DEFAULT_PMAX;
     Init_Drug();
 }
 
 Drug::Drug(const double &initial_concentration, const double &elimination_halflife_in_hour) : init_concentration(initial_concentration), halflife(elimination_halflife_in_hour) {
+    ec50 = ParamNS::DEFAULT_EC50_MIN;
+    slope = ParamNS::DEFAULT_DRUG_SLOPE_MIN;
+    pmax = ParamNS::DEFAULT_PMAX;
     Init_Drug();
 }
 
@@ -22,7 +28,12 @@ Drug::Drug(const double &initial_concentration, const double &elimination_halfli
 }
 
 void Drug::Init_Drug() {
-    ln2_over_halflife = Helper::LN2/halflife;
+    if (init_concentration < 0.0 || halflife <= 0.0 || ec50 < 0.0 || slope < 0.0 || pmax <= 0.0 ){
+        init_concentration = 0.0;
+        ln2_over_halflife = Helper::MAX_UNSIGNED_INT;
+    }
+    else
+        ln2_over_halflife = Helper::LN2/halflife;
     concentration = 0.0;
 }
 

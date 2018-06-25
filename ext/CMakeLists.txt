@@ -1,7 +1,7 @@
 # Create a library called "Likelihood" which includes all .cpp files.
 # The extension is already found
 #file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" )#"${CMAKE_CURRENT_SOURCE_DIR}/*.hpp")
 add_library(External ${SOURCES})
 
 # Make sure the compiler can find include files for our Likelihood library

@@ -16,18 +16,19 @@
 Model::Model(const unsigned int &pop_size, ParamNS::Param *param_set) : n_total(pop_size), param(param_set) {
     n_hour = Helper::DEFAULT_RUNTIME;
     Init_Model();
+    Init_Person_V();
 }
 
 Model::Model(const unsigned int &pop_size, const unsigned int &total_days, ParamNS::Param *param_set) : n_total(pop_size), n_hour(total_days*24), param(param_set) {
     Init_Model();
+    Init_Person_V();
 }
-
 
 Model::Model(Trial *trial, ParamNS::Param *param_set) : trial(trial), param(param_set){
     n_total = trial->Get_Pop_Size() * scale_up_n_total;
-//    n_cured = trial->Get_Cured();
     n_hour = Helper::DEFAULT_RUNTIME;
     Init_Model();
+    Init_Person_V();
 }
 
 
@@ -42,11 +43,25 @@ Model::~Model() {
 void Model::Init_Model() {
     rand_gen = new RandomGenerator(this);
     timer = 0;
-    // draw initial parasite count
-    // draw initial absorbed drug concentration
     person_v.reserve(n_total);
+}
+
+void Model::Init_Person_V() {
     for (unsigned int i=0; i<n_total; i++){
-        person_v.emplace_back(new Person(this));
+        // draw initial parasite count
+        const auto &prm_log10_pc_max = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::LOG10_PC_MAX);
+        double total = rand_gen->Rand_Uniform(1,9) * pow(10,
+                                                         rand_gen->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
+//    const auto &prm_pa_mean = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_MEAN);
+//    const auto &prm_pa_sd = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_SD);
+//    unsigned short mean_age = (unsigned short)rand_gen->Rand_Normal(prm_pa_mean, 5);
+//    unsigned short sd_age = (unsigned short)rand_gen->Rand_Normal(prm_pa_sd, 3);
+        unsigned short mean_age = (unsigned short)rand_gen->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
+        unsigned short sd_age = (unsigned short)rand_gen->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
+
+
+        person_v.emplace_back(new Person(this, total, mean_age, sd_age));
+        // draw initial absorbed drug concentration
     }
     updatable_person_v = person_v;
 }
@@ -133,4 +148,3 @@ const double Model::Calculate_Negative_Log_Likelihood()  {
 const double Model::Get_Negative_Log_Likelihood() const {
     return negative_log_likelihood;
 }
-

@@ -14,16 +14,15 @@ class Person;
 
 class Model {
 public:
-    unsigned scale_up_n_total = 1;
+    unsigned scale_up_n_total = 2;
     unsigned n_total; // total population
-//    unsigned n_cured; // number of cured cases at day 28
     unsigned n_hour; // duration of simulation in hour
     ParamNS::Param *param; // set of parameters to run the PKPD model
     Trial *trial;
     RandomGenerator *rand_gen;
     std::vector<Person*> person_v;
     std::vector<Person*> updatable_person_v;
-    double negative_log_likelihood;
+    double negative_log_likelihood; // this should be the sum of nll with different trials
     unsigned int timer;
 
     Model(const unsigned int &pop_size, ParamNS::Param *param_set);
@@ -32,6 +31,7 @@ public:
     ~Model();
 
     void Init_Model();
+    void Init_Person_V();
     void Run();
     void Tick();
     const unsigned int Get_Cure_Number() const ;
