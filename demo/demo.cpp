@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <cmath>
 #include <gsl/gsl_multimin.h>
@@ -6,6 +7,8 @@
 
 #include "StopWatch.h"
 #include "cxxopts.hpp"
+#include "mpirbased/primeswing.h"
+#include "mpirbased/binomial.h"
 
 #include "ConfigCmake.h"
 #include "Helper.h"
@@ -71,97 +74,124 @@ void test_model(){
 //    std::cout << "model cured: " << test_model->Get_Cure_Number() << std::endl;
 }
 
+void test_fast_factorial(){
+    mpz_t mpir_x;
+
+    lmp::Init(mpir_x);
+//    PrimeSwing::Factorial(mpir_x, 28);
+    Binomial::PrimeBinomial(mpir_x, 5, 3);
+
+    unsigned long int x = mpz_get_ui(mpir_x);
+    std::cout << x << std::endl;
+}
+
+double Binomial_PDF(const double &p, const unsigned &n, const unsigned &k){
+//    mpz_t mpir_x;
+//    lmp::Init(mpir_x);
+//    Binomial::PrimeBinomial(mpir_x, 5, 3);
+}
+
 int main(int argc, char* argv[]) {
     StopWatch sw;
     sw.Restart();
 
     // parsing arguments using cxxopts
-//    try {
-//        cxxopts::Options options(argv[0], "=== PKPD parameters estimator using GSL minimizer ===");
-//        options
-//                .positional_help("[optional args]")
-//                .show_positional_help();
-//
-//        options.add_options()
-//                ("c,config", "Config file",
-//                 cxxopts::value<std::string>()->default_value("config.cfg")->implicit_value("config.cfg"), "INPUT_FILE")
-//                ("o,output", "Output file",
-//                 cxxopts::value<std::string>()->default_value("llhDemo.out")->implicit_value("llhDemo.out"), "OUTPUT_FILE")
-//                ("help", "Print this help")
-////                ("positional",
-////                 "Positional arguments: these are the arguments that are entered "
-////                 "without an option", cxxopts::value<std::vector<std::string>>())
-//                 ;
-//
-//        options.add_options("Parameters to be estimated and their initial values")
-//                ("log10pcmax", "Log10 of the max parasite count that can be found in a person",
-//                 cxxopts::value<double>()->implicit_value(std::to_string(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MAX)), "LOG10PCMAX")
-//                ("sigma", "Variability of drug absorption",
-//                 cxxopts::value<double>()->implicit_value(std::to_string(ParamNS::DEFAULT_DRUG_SIGMA)), "SIGMA")
-//                ("pmax", "Max fraction of the parasite population to be killed by the drug at full concentration and highest drug absorption, use one 'pmax' option for each drug in the combination act_al",
-//                 cxxopts::value<std::vector<double>>()->implicit_value(std::to_string(ParamNS::DEFAULT_PMAX)), "PMAX")
-//                ;
-//
-//        options.add_options("GSL minimizer")
-//                ("i,iter", "Max number of iterations in the optimizer",
-//                 cxxopts::value<int>()->default_value("100")->implicit_value("100"), "max_iter")
-//                ("t,tol", "Tolerance for the minimizer; this will be used to test the characteristic size and determine stopping point",
-//                 cxxopts::value<double>()->default_value("1e-3")->implicit_value("1e-3"), "tolerance")
-//                ;
-//
-//        options.parse_positional({"log10pcmax", "sigma", "pmax"});
-//
-//        auto result = options.parse(argc, argv);
-//
-//        if (result.count("help")){
-//            std::cout << options.help({"",
-//                                       "Parameters to be estimated and their initial values",
-//                                       "GSL minimizer"})
-//                      << std::endl;
-//            exit(0);
+/*
+    try {
+        cxxopts::Options options(argv[0], "=== PKPD parameters estimator using GSL minimizer ===");
+        options
+                .positional_help("[optional args]")
+                .show_positional_help();
+
+        options.add_options()
+                ("c,config", "Config file",
+                 cxxopts::value<std::string>()->default_value("config.cfg")->implicit_value("config.cfg"), "INPUT_FILE")
+                ("o,output", "Output file",
+                 cxxopts::value<std::string>()->default_value("llhDemo.out")->implicit_value("llhDemo.out"), "OUTPUT_FILE")
+                ("help", "Print this help")
+//                ("positional",
+//                 "Positional arguments: these are the arguments that are entered "
+//                 "without an option", cxxopts::value<std::vector<std::string>>())
+                 ;
+
+        options.add_options("Parameters to be estimated and their initial values")
+                ("log10pcmax", "Log10 of the max parasite count that can be found in a person",
+                 cxxopts::value<double>()->implicit_value(std::to_string(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MAX)), "LOG10PCMAX")
+                ("sigma", "Variability of drug absorption",
+                 cxxopts::value<double>()->implicit_value(std::to_string(ParamNS::DEFAULT_DRUG_SIGMA)), "SIGMA")
+                ("pmax", "Max fraction of the parasite population to be killed by the drug at full concentration and highest drug absorption, use one 'pmax' option for each drug in the combination act_al",
+                 cxxopts::value<std::vector<double>>()->implicit_value(std::to_string(ParamNS::DEFAULT_PMAX)), "PMAX")
+                ;
+
+        options.add_options("GSL minimizer")
+                ("i,iter", "Max number of iterations in the optimizer",
+                 cxxopts::value<int>()->default_value("100")->implicit_value("100"), "max_iter")
+                ("t,tol", "Tolerance for the minimizer; this will be used to test the characteristic size and determine stopping point",
+                 cxxopts::value<double>()->default_value("1e-3")->implicit_value("1e-3"), "tolerance")
+                ;
+
+        options.parse_positional({"log10pcmax", "sigma", "pmax"});
+
+        auto result = options.parse(argc, argv);
+
+        if (result.count("help")){
+            std::cout << options.help({"",
+                                       "Parameters to be estimated and their initial values",
+                                       "GSL minimizer"})
+                      << std::endl;
+            exit(0);
+        }
+//        if (result.count("b"))
+//        {
+//            std::cout << "Saw option ‘b’" << result.count("a") << std::endl;
 //        }
-////        if (result.count("b"))
-////        {
-////            std::cout << "Saw option ‘b’" << result.count("a") << std::endl;
-////        }
-//        if (result.count("config")){
-//            std::cout << "Config = " << result["config"].as<std::string>()
-//                      << std::endl;
-//        }
-//        if (result.count("output")){
-//            std::cout << "Output = " << result["output"].as<std::string>()
-//                      << std::endl;
-//        }
-////        if (result.count("positional")){
-////            std::cout << "Positional = {";
-////            auto& v = result["positional"].as<std::vector<std::string>>();
-////            for (const auto& s : v) {
-////                std::cout << s << ", ";
-////            }
-////            std::cout << "}" << std::endl;
-////        }
-//        if (result.count("pmax")){
-//            std::cout << "Pmax = {";
-//            auto &v = result["pmax"].as<std::vector<double >>();
-//            for (auto &i :v)
-//                std::cout << i << ", ";
+        if (result.count("config")){
+            std::cout << "Config = " << result["config"].as<std::string>()
+                      << std::endl;
+        }
+        if (result.count("output")){
+            std::cout << "Output = " << result["output"].as<std::string>()
+                      << std::endl;
+        }
+//        if (result.count("positional")){
+//            std::cout << "Positional = {";
+//            auto& v = result["positional"].as<std::vector<std::string>>();
+//            for (const auto& s : v) {
+//                std::cout << s << ", ";
+//            }
 //            std::cout << "}" << std::endl;
 //        }
-//
-//        if (result.count("iter")){
-//            std::cout << "max iteration = " << result["iter"].as<int>() << std::endl;
-//        }
-//        if (result.count("tol")){
-//            std::cout << "tolerance = " << result["tol"].as<double>() << std::endl;
-//        }
-//
-//        std::cout << "Arguments remain = " << argc << std::endl;
-//
-//    } catch (const cxxopts::OptionException& e)
-//    {
-//        std::cout << "error parsing options: " << e.what() << std::endl;
-//        exit(1);
-//    }
+        if (result.count("pmax")){
+            std::cout << "Pmax = {";
+            auto &v = result["pmax"].as<std::vector<double >>();
+            for (auto &i :v)
+                std::cout << i << ", ";
+            std::cout << "}" << std::endl;
+        }
+
+        if (result.count("iter")){
+            std::cout << "max iteration = " << result["iter"].as<int>() << std::endl;
+        }
+        if (result.count("tol")){
+            std::cout << "tolerance = " << result["tol"].as<double>() << std::endl;
+        }
+
+        std::cout << "Arguments remain = " << argc << std::endl;
+
+    } catch (const cxxopts::OptionException& e)
+    {
+        std::cout << "error parsing options: " << e.what() << std::endl;
+        exit(1);
+    }
+*/
+
+
+
+
+
+
+    // gsl minimizer
+/*
 
     extern std::vector<Trial*> trial_v;
     std::vector<Drug*> act_al;
@@ -259,8 +289,18 @@ int main(int argc, char* argv[]) {
     gsl_multimin_fminimizer_free (s);
     gsl_vector_free (x);
     gsl_vector_free (step_size);
+*/
+
+
+
+
+
+
 
 //    test_model();
+//    #ifdef TEST_FF
+    test_fast_factorial();
+//    #endif
 
     std::cout << "Elapsed time (sec): " << sw.ElapsedSec() << std::endl;
 

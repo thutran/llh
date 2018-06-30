@@ -26,12 +26,24 @@ configure_file(
 # add binary dir to the search path so that ConfigCmake.h can be found
 include_directories("${PROJECT_BINARY_DIR}")
 
-#set(CMAKE_CXX_STANDARD 11)
-#set(CMAKE_CXX_STANDARD_REQUIRED YES)
-#set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+# build third-party libs,
+# as instructed at
+# https://www.selectiveintellect.net/blog/2016/7/29/using-cmake-to-add-third-party-libraries-to-your-project-1
+# https://mirkokiefer.com/cmake-by-example-f95eb47d45b1
+include(ExternalProject)
 
-add_subdirectory(src)
+# directory to install third-party libs
+set(EXT_INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ext_installed)
+
+# to be passed to the compiler in order to be used in source code
+if (TEST_FAST_FACTORIAL)
+    add_definitions(-DTEST_FF=${TEST_FAST_FACTORIAL})
+endif()
+
+
+
 add_subdirectory(ext)
+add_subdirectory(src)
 add_subdirectory(demo)
 
 # set(SRC "${PROJECT_SOURCE_DIR}/src")
