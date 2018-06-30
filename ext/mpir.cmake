@@ -26,7 +26,7 @@ if (NOT (${AUTOCONF_VERSION} VERSION_GREATER 2.64))
             INSTALL_COMMAND
             )
     add_dependencies(Mpir ${AUTOCONF_PREFIX})
-    include_directories(BEFORE ${EXT_INSTALL_DIR}/bin)
+#    include_directories(BEFORE ${EXT_INSTALL_DIR}/bin)
 
     message(STATUS "Install ${AUTOCONF_PREFIX} to ${EXT_INSTALL_DIR}/bin")
 endif ()
@@ -60,7 +60,12 @@ if (${MPIR_FILE_PATH} STREQUAL "MPIR_FILE_PATH-NOTFOUND" OR
         #message(STATUS "Install dir of ${YASM_PREFIX} ${INSTALL_DIR}")
         ExternalProject_Get_Property(${YASM_PREFIX} SOURCE_DIR)
         ExternalProject_Add_Step(${YASM_PREFIX} autoconf
+                if (NOT (${AUTOCONF_VERSION} VERSION_GREATER 2.64))
+                COMMAND ${EXT_INSTALL_DIR}/bin/autoconf
+                else (NOT (${AUTOCONF_VERSION} VERSION_GREATER 2.64))
                 COMMAND autoconf
+                endif(NOT (${AUTOCONF_VERSION} VERSION_GREATER 2.64))
+#                COMMAND autoconf
                 COMMENT "autoconf for yasm"
                 DEPENDEES download
                 DEPENDERS configure
@@ -99,7 +104,12 @@ if (${MPIR_FILE_PATH} STREQUAL "MPIR_FILE_PATH-NOTFOUND" OR
             )
     ExternalProject_Get_Property(${MPIR_PREFIX} SOURCE_DIR)
     ExternalProject_Add_Step(${MPIR_PREFIX} autoconf
+            if (NOT (${AUTOCONF_VERSION} VERSION_GREATER 2.64))
+            COMMAND ${EXT_INSTALL_DIR}/bin/autoconf
+            else (NOT (${AUTOCONF_VERSION} VERSION_GREATER 2.64))
             COMMAND autoconf
+            endif(NOT (${AUTOCONF_VERSION} VERSION_GREATER 2.64))
+#            COMMAND autoconf
             COMMENT "autoconf for mpir"
             DEPENDEES download
             DEPENDERS configure
