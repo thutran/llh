@@ -4,6 +4,33 @@ find_file(MPIR_LIB_PATH libmpir.a HINTS ${EXT_INSTALL_DIR}/lib)
 # create a imported target library
 add_library(Mpir STATIC IMPORTED GLOBAL)
 
+# check if autoconf version >= 2.65; else install
+execute_process(COMMAND autoconf --version
+        COMMAND sed "1s/[A-Za-z() ]//g;q" # replace all characters except version number with empty string in the first line
+        COMMAND tr -d \\n # remove trailing newline which was missed in sed
+        OUTPUT_VARIABLE AUTOCONF_VERSION)
+message(STATUS "Found autoconf version ${AUTOCONF_VERSION}")
+
+if (NOT (${AUTOCONF_VERSION} VERSION_GREATER 2.64))
+    set(AUTOCONF_PREFIX autoconf-2.69)
+    set(AUTOCONF_URL ${CMAKE_CURRENT_SOURCE_DIR}/autoconf-2.69.tar.gz)
+    ExternalProject_Add(${AUTOCONF_PREFIX}
+            PREFIX ${AUTOCONF_PREFIX}
+            URL ${AUTOCONF_URL}
+            CONFIGURE_COMMAND sh configure --prefix=${EXT_INSTALL_DIR}
+            BUILD_IN_SOURCE 1
+            BUILD_COMMAND make
+            TEST_BEFORE_INSTALL 0
+            TEST_COMMAND ""
+            INSTALL_DIR ${EXT_INSTALL_DIR}
+            INSTALL_COMMAND
+            )
+    add_dependencies(Mpir ${AUTOCONF_PREFIX})
+    include_directories(BEFORE ${EXT_INSTALL_DIR}/bin)
+
+    message(STATUS "Install ${AUTOCONF_PREFIX} to ${EXT_INSTALL_DIR}/bin")
+endif ()
+
 if (${MPIR_FILE_PATH} STREQUAL "MPIR_FILE_PATH-NOTFOUND" OR
         ${MPIR_LIB_PATH} STREQUAL "MPIR_LIB_PATH-NOTFOUND")
     # case not found mpir
