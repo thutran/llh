@@ -2,13 +2,15 @@
 #include <iostream>
 #include <cmath>
 #include <gsl/gsl_multimin.h>
-#include <Person.h>
 #include <gsl/gsl_vector.h>
 
 #include "StopWatch.h"
 #include "cxxopts.hpp"
+#ifdef FF_ON
+#include "mpir.h"
 #include "mpirbased/primeswing.h"
 #include "mpirbased/binomial.h"
+#endif
 
 #include "ConfigCmake.h"
 #include "Helper.h"
@@ -17,7 +19,7 @@
 #include "Drug.h"
 #include "Trial.h"
 //#include "Person.h"
-//#include "RandomGenerator.h"
+#include "RandomGenerator.h"
 //#include "ParasiteClone.h"
 
 Model *m;
@@ -50,7 +52,7 @@ double my_f(const gsl_vector * x, void * prm){
     return sum_nll;
 }
 
-void test_model(){
+/*void test_model(){
     std::vector<Drug*> test_therapy;
     test_therapy.emplace_back(new Drug(4.8)); // artemether
 //    test_therapy.emplace_back(new Drug(108.0)); // lumefantrine
@@ -72,24 +74,51 @@ void test_model(){
     }
 //    test_model->Run();
 //    std::cout << "model cured: " << test_model->Get_Cure_Number() << std::endl;
-}
+}*/
 
+#ifdef FF_ON
 void test_fast_factorial(){
     mpz_t mpir_x;
 
-    lmp::Init(mpir_x);
+    mpz_init(mpir_x);
 //    PrimeSwing::Factorial(mpir_x, 28);
     Binomial::PrimeBinomial(mpir_x, 5, 3);
 
     unsigned long int x = mpz_get_ui(mpir_x);
     std::cout << x << std::endl;
-}
 
-double Binomial_PDF(const double &p, const unsigned &n, const unsigned &k){
-//    mpz_t mpir_x;
-//    lmp::Init(mpir_x);
-//    Binomial::PrimeBinomial(mpir_x, 5, 3);
+    mpz_clear(mpir_x);
 }
+#endif
+
+#ifdef FF_ON
+double Binomial_PDF(const double &p, const unsigned &n, const unsigned &k){
+    mpir_ui m_n=n, m_k=k, m_nk=n-k;
+    mpf_t m_p, m_pk, m_1pnk; // MPIR float var
+    mpz_t m_bin_coef; // MPIR int
+    mpf_inits(m_p, m_pk, m_1pnk, NULL); // initialize var to be used with MPIR
+    mpz_inits(m_bin_coef, NULL);
+    mpf_set_d(m_p, p);
+
+    Binomial::PrimeBinomial(m_bin_coef, n, k); // calculate binomial coefficient
+    mpf_pow_ui(m_pk, m_p, m_k);
+    mpf_ui_sub(m_p, 1.0, m_p);
+    mpf_pow_ui(m_1pnk, m_p, m_nk);
+
+//    printf("m_bin_coeff: "); mpz_out_str(stdout, 10, m_bin_coef);
+//    printf("\nm_pk: "); mpf_out_str(stdout, 10, 5, m_pk);
+//    printf("\nm_1pnk: "); mpf_out_str(stdout, 10, 5, m_1pnk);
+//    printf("\n");
+
+    mpf_mul(m_pk, m_pk, m_1pnk);
+    mpf_mul_ui(m_pk, m_pk, mpz_get_ui(m_bin_coef));
+    printf("Bin_PDF: "); mpf_out_str(stdout, 10, 8, m_pk);
+    printf("\n");
+
+    mpf_clears(m_p, m_pk, m_1pnk, NULL); // release MPIR var
+    mpz_clears(m_bin_coef, NULL);
+}
+#endif
 
 int main(int argc, char* argv[]) {
     StopWatch sw;
@@ -191,7 +220,6 @@ int main(int argc, char* argv[]) {
 
 
     // gsl minimizer
-/*
 
     extern std::vector<Trial*> trial_v;
     std::vector<Drug*> act_al;
@@ -289,20 +317,24 @@ int main(int argc, char* argv[]) {
     gsl_multimin_fminimizer_free (s);
     gsl_vector_free (x);
     gsl_vector_free (step_size);
-*/
 
-
-
-
+    std::cout << "Elapsed time (sec): " << sw.ElapsedSec() << std::endl;
 
 
 
 //    test_model();
-//    #ifdef TEST_FF
-    test_fast_factorial();
-//    #endif
+    #ifdef FF_ON
+    StopWatch ff_sw;
+    ff_sw.Restart();
+//    test_fast_factorial();
+    Binomial_PDF(0.5, 30, 10);
+    std::cout << "Elapsed time (microsec): " << ff_sw.ElapsedUs() << std::endl;
 
-    std::cout << "Elapsed time (sec): " << sw.ElapsedSec() << std::endl;
+    RandomGenerator *rng = new RandomGenerator();
+    ff_sw.Restart();
+    std::cout << rng->PDF_Binomial(10, 30, 0.5) << std::endl;
+    std::cout << "Elapsed time (microsec): " << ff_sw.ElapsedUs() << std::endl;
+    #endif
 
     return 0;
 }
