@@ -230,7 +230,7 @@ int main(int argc, char* argv[]) {
 
     // setup
     extern RandomGenerator *random_generator;
-    random_generator = new RandomGenerator();
+    random_generator = new RandomGenerator(1111);
 
     extern std::vector<Trial*> trial_v;
     std::vector<Drug*> act_al;
@@ -268,8 +268,8 @@ int main(int argc, char* argv[]) {
 //                         std::vector<double >({0.3}));
 
     // print csv format
-    /*std::cout << "pmax_AM,pmax_LM,sum_negll" << std::endl;
-    double pm_am=0.00, pm_lm=0.00;
+    std::cout << "pmax_AM,pmax_LM,sum_negll" << std::endl;
+    double pm_am=0.00, pm_lm=0.00, step=0.001;
     while (pm_am < 1.0){
         while (pm_lm < 1.0){
             param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
@@ -284,25 +284,25 @@ int main(int argc, char* argv[]) {
                 sum_nll += m->Calculate_Negative_Log_Likelihood();
             }
             std::cout << pm_am << "," << pm_lm << "," << sum_nll << std::endl ;
-            pm_lm += 0.01;
+            pm_lm += step;
         }
         pm_lm=0.0;
-        pm_am += 0.01;
-    }*/
+        pm_am += step;
+    }
 
 
     // gsl minimizer
-    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
+    /*param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
                                                       (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1 }));//,
 //                                                      (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIGMA }));
     unsigned search_dim = 2;
     std::vector<double > search_init_values({0.6, 0.4});
     std::vector<double > search_step_size({0.2391, 0.1242});
 
-    /*param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0}));
+    *//*param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0}));
     unsigned search_dim = 1;
     std::vector<double > search_init_values({0.5});
-    std::vector<double > search_step_size({0.2});*/
+    std::vector<double > search_step_size({0.2});*//*
 
 
     std::cout << "iteration\t" << "pmaxAM\t" << "pmaxLM\t" << "negll\t" << "simplexSize" << std::endl;
@@ -364,7 +364,7 @@ int main(int argc, char* argv[]) {
     gsl_vector_free (step_size);
 
     std::cout << "Elapsed time (sec): " << sw.ElapsedSec() << std::endl;
-
+*/
 
 
 //    test_model();
