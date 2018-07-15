@@ -20,12 +20,13 @@ namespace ParamNS{
     const unsigned short DEFAULT_PARASITE_AGE_STD_DEVIATION = 12;
     const unsigned DEFAULT_PARASITE_EFFECTIVE_COUNT = 100;
     const unsigned DEFAULT_PARASITE_DETECTION_COUNT = 100000000; // 10^8
-    const double DEFAULT_DRUG_SIGMA = 0.4; // absorption sigma
+    const double DEFAULT_DRUG_SIGMA = 0.4;//0.4; // absorption sigma
     const double DEFAULT_DRUG_EFFECTIVE_CONC = 0.001;
-    const double DEFAULT_EC50_MIN = 0.6;
+    const double DEFAULT_EC50_MIN = 0.6;//0.6;
     const double DEFAULT_EC50_MAX = 1.4;
-    const unsigned short DEFAULT_DRUG_SLOPE_MIN = 15;
+    const unsigned short DEFAULT_DRUG_SLOPE_MIN = 15;//15;
     const unsigned short DEFAULT_DRUG_SLOPE_MAX = 25;
+    const unsigned RANDOM_SEED = 1111;
 
     enum class Non_Pmax_Param_Enum : unsigned short{
         LOG10_PC_MAX, // 0

@@ -28,8 +28,11 @@ public:
     Model(const unsigned int &pop_size, ParamNS::Param *param_set);
     Model(const unsigned int &pop_size, const unsigned int &total_days, ParamNS::Param *param_set);
     Model(Trial *trial, ParamNS::Param *param_set);
+    Model(Trial *trial, ParamNS::Param *param_set, RandomGenerator *random_gen);
     ~Model();
 
+    void Reset_Model(Trial *trial, ParamNS::Param *param_set, RandomGenerator *random_gen);
+    void Reset_Person_V();
     void Init_Model();
     void Init_Person_V();
     void Run();

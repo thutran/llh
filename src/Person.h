@@ -24,11 +24,15 @@ public:
     explicit Person(Model *model);
     Person(Model *model, const double &total_parasite_count, const unsigned short &mean_age,
            const unsigned short &parasite_count_sd);
+    void Reset_Person(Model *model, const double &total_parasite_count, const unsigned short &mean_age,
+                      const unsigned short &parasite_count_sd);
     ~Person();
     void Init_Person();
     void Init_Parasite_Clone();
     void Init_Parasite_Clone(const double &total_parasite_count, const unsigned short &mean_age,
                              const unsigned short &parasite_count_sd);
+    void Reset_Parasite_Clone(const double &total_parasite_count, const unsigned short &mean_age,
+                              const unsigned short &parasite_count_sd);
     void Init_Drug_V();
     void Add_Drug(const double &init_concentration, const double &half_life,
                   const double &pmax, const double &ec50, const unsigned short &slope);

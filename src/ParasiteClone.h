@@ -22,10 +22,16 @@ public:
     ParasiteClone(Person *person,
                   const double &total_parasite_count,
                   const unsigned short &mean_age, const unsigned short &std_deviation);
+    void Reset_ParasiteClone(Person *person,
+                             const double &total_parasite_count,
+                             const unsigned short &mean_age, const unsigned short &std_deviation);
     ~ParasiteClone();
     void Distribute_To_Bins(const double &total_parasite_count,
                             const unsigned short &mean_age, const unsigned short &std_deviation);
+    void Reset_Bins(const double &total_parasite_count,
+                    const unsigned short &mean_age, const unsigned short &std_deviation);
     void Init_Max_Affected_Fraction_Bins();
+    void Reset_Max_Affected_Fraction_Bins(); // unnecessary
     const double Get_Total_Parasite_Count()  ;
     void Killed_By_Drug(const std::vector<Drug*>& drug_v);
     void Update_ParasiteClone();

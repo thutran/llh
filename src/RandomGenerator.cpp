@@ -13,7 +13,7 @@ RandomGenerator::RandomGenerator() : seed(Helper::MAX_UNSIGNED_INT), model(nullp
     Init_RandomGenerator();
 }
 
-RandomGenerator::RandomGenerator(unsigned int& random_seed) : seed(random_seed), model(nullptr){
+RandomGenerator::RandomGenerator(const unsigned int &random_seed) : seed(random_seed), model(nullptr){
     Init_RandomGenerator();
 }
 
@@ -21,7 +21,7 @@ RandomGenerator::RandomGenerator(Model *model) : seed(Helper::MAX_UNSIGNED_INT),
     Init_RandomGenerator();
 }
 
-RandomGenerator::RandomGenerator(Model *model, unsigned int &random_seed) : seed(random_seed), model(model) {
+RandomGenerator::RandomGenerator(Model *model, const unsigned int &random_seed) : seed(random_seed), model(model) {
     Init_RandomGenerator();
 }
 
@@ -62,6 +62,10 @@ void RandomGenerator::Rand_Multinomial(const unsigned int &n_draw, const unsigne
 
 double RandomGenerator::PDF_Binomial(const unsigned &k, const unsigned &size, const double &prob) const {
     return gsl_ran_binomial_pdf(k, prob, size);
+}
+
+Model *RandomGenerator::Get_Model() const {
+    return model;
 }
 
 /*void

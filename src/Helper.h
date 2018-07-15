@@ -14,6 +14,8 @@ namespace Helper{
     const unsigned int MAX_UNSIGNED_INT = 4294967295;
     const double LN2 = 0.69314718056;
     const unsigned int DEFAULT_RUNTIME = 672;
+    const double E = 2.71828182846;
+    const double LOG_CONST = 1e-9;
 
     template <typename T>
     void DeletePointer(T* p) {

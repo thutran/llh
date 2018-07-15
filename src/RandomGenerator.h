@@ -16,10 +16,12 @@ public:
     unsigned int seed;
     Model *model;
 
+    Model *Get_Model() const;
+
     RandomGenerator();
-    explicit RandomGenerator(unsigned int& random_seed);
+    explicit RandomGenerator(const unsigned int &random_seed);
     explicit RandomGenerator(Model* model);
-    RandomGenerator(Model* model, unsigned int& random_seed);
+    RandomGenerator(Model *model, const unsigned int &random_seed);
 
     ~RandomGenerator();
 

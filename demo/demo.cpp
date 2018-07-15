@@ -25,13 +25,17 @@
 Model *m;
 //Trial *trial;
 std::vector<Trial*> trial_v;
+RandomGenerator *random_generator;
 
 unsigned model_cured = 0;
 
 double my_f(const gsl_vector * x, void * prm){
-//    extern Model *m;
+    extern Model *m;
 //    extern Trial *trial;
 //    extern ParamNS::Param *param;
+    extern std::vector<Trial*> trial_v;
+    extern RandomGenerator *random_generator;
+
     double sum_nll = 0.0;
     auto *param = (ParamNS::Param*) prm;
 
@@ -39,12 +43,18 @@ double my_f(const gsl_vector * x, void * prm){
 
     if (param->Is_Good()){
         for (auto trial : trial_v){
-            if (m)
-                Helper::DeletePointer(m);
-            m = new Model(trial, param); // TODO reuse population
+            if (m != nullptr) {
+                m->Reset_Model(trial, param, random_generator);
+//                Helper::DeletePointer(m);
+            } else {
+//                m = new Model(trial, param); // TODO reuse population
+                m = new Model(trial, param, random_generator); // TODO reuse population
+                std::cout << "new model\n";
+            }
+//            m = new Model(trial, param, random_generator); // TODO reuse population
             m->Run();
             sum_nll += m->Calculate_Negative_Log_Likelihood();
-            model_cured = m->Get_Cure_Number();
+//            model_cured = m->Get_Cure_Number();
 //            std::cout << m->Get_Cure_Number() << std::endl;
         }
     } else
@@ -218,8 +228,9 @@ int main(int argc, char* argv[]) {
 
 
 
-
-    // gsl minimizer
+    // setup
+    extern RandomGenerator *random_generator;
+    random_generator = new RandomGenerator();
 
     extern std::vector<Trial*> trial_v;
     std::vector<Drug*> act_al;
@@ -229,8 +240,8 @@ int main(int argc, char* argv[]) {
     mono_am.emplace_back(new Drug(4.2));
     mono_am.emplace_back(new Drug(0.0)); // dummy
     std::vector<Drug*> mono_lm;
-    mono_lm.emplace_back(new Drug(0.0));
-    mono_lm.emplace_back(new Drug(108.0)); // dummy
+    mono_lm.emplace_back(new Drug(0.0)); // dummy
+    mono_lm.emplace_back(new Drug(108.0));
 
     // artemether monotherapy trials
     trial_v.push_back(new Trial(20, 9, mono_am, std::vector<unsigned int>({0,8,24,48})));
@@ -253,12 +264,46 @@ int main(int argc, char* argv[]) {
     trial_v.emplace_back(new Trial(102, 85, act_al, std::vector<unsigned int>({0,8,24,48})));
 
     ParamNS::Param *param = new ParamNS::Param(2); // default param set with 2 drugs
+//    param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
+//                         std::vector<double >({0.3}));
+
+    // print csv format
+    /*std::cout << "pmax_AM,pmax_LM,sum_negll" << std::endl;
+    double pm_am=0.00, pm_lm=0.00;
+    while (pm_am < 1.0){
+        while (pm_lm < 1.0){
+            param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
+                                                              (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
+                                 std::vector<double >({pm_am, pm_lm}));
+            double sum_nll = 0.0;
+            for (auto trial : trial_v){
+                if (m)
+                    Helper::DeletePointer(m);
+                m = new Model(trial, param); // TODO reuse population
+                m->Run();
+                sum_nll += m->Calculate_Negative_Log_Likelihood();
+            }
+            std::cout << pm_am << "," << pm_lm << "," << sum_nll << std::endl ;
+            pm_lm += 0.01;
+        }
+        pm_lm=0.0;
+        pm_am += 0.01;
+    }*/
+
+
+    // gsl minimizer
     param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
                                                       (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1 }));//,
 //                                                      (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIGMA }));
     unsigned search_dim = 2;
-    std::vector<double > search_init_values({0.0, 0.0});
-    std::vector<double > search_step_size({0.2, 0.1});
+    std::vector<double > search_init_values({0.6, 0.4});
+    std::vector<double > search_step_size({0.2391, 0.1242});
+
+    /*param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0}));
+    unsigned search_dim = 1;
+    std::vector<double > search_init_values({0.5});
+    std::vector<double > search_step_size({0.2});*/
+
 
     std::cout << "iteration\t" << "pmaxAM\t" << "pmaxLM\t" << "negll\t" << "simplexSize" << std::endl;
 
@@ -296,7 +341,7 @@ int main(int argc, char* argv[]) {
         if (status)
             break;
 
-        status = gsl_multimin_test_size (s->size, 1e-5);
+        status = gsl_multimin_test_size (s->size, 1e-8);
 
 //            param->Print();
         if (iter % 10 == 0 || status == GSL_SUCCESS){
@@ -305,7 +350,7 @@ int main(int argc, char* argv[]) {
             for (unsigned i=0; i<x->size; ++i){
                 printf("%.10f \t", gsl_vector_get (s->x, i));
             }
-            printf ("%.8f \t %.5f", s->fval, s->size );
+            printf ("%.8f \t %.10f", s->fval, s->size );
             if (status == GSL_SUCCESS)
                 printf("%s\n", " *** ");
             else

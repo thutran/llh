@@ -31,17 +31,35 @@ Model::Model(Trial *trial, ParamNS::Param *param_set) : trial(trial), param(para
     Init_Person_V();
 }
 
+Model::Model(Trial *trial, ParamNS::Param *param_set, RandomGenerator *random_gen) : trial(trial), param(param_set), rand_gen(random_gen) {
+    n_total = 50;trial->Get_Pop_Size() * scale_up_n_total;
+    n_hour = Helper::DEFAULT_RUNTIME;
+    timer = 0;
+    person_v.reserve(n_total);
+    Init_Person_V();
+}
+
+void Model::Reset_Model(Trial *trial, ParamNS::Param *param_set, RandomGenerator *random_gen) {
+    this->trial = trial;
+    this->param = param_set;
+    this->rand_gen = random_gen;
+    timer = 0;
+    Reset_Person_V();
+}
+
 
 Model::~Model() {
 //    Helper::DeletePointer(param);
 //    Helper::DeletePointer(Trial);
-    Helper::DeletePointer(rand_gen);
+    if (rand_gen->Get_Model() == this)
+        Helper::DeletePointer(rand_gen);
     Helper::DeleteVector<Person*>(updatable_person_v);
     Helper::DeleteVector<Person*>(person_v);
 }
 
 void Model::Init_Model() {
     rand_gen = new RandomGenerator(this);
+//    rand_gen = new RandomGenerator(this, ParamNS::RANDOM_SEED);
     timer = 0;
     person_v.reserve(n_total);
 }
@@ -52,6 +70,7 @@ void Model::Init_Person_V() {
         const auto &prm_log10_pc_max = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::LOG10_PC_MAX);
         double total = rand_gen->Rand_Uniform(1,9) * pow(10,
                                                          rand_gen->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
+//        double total = 1e10;
 //    const auto &prm_pa_mean = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_MEAN);
 //    const auto &prm_pa_sd = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_SD);
 //    unsigned short mean_age = (unsigned short)rand_gen->Rand_Normal(prm_pa_mean, 5);
@@ -61,6 +80,22 @@ void Model::Init_Person_V() {
 
 
         person_v.emplace_back(new Person(this, total, mean_age, sd_age));
+        // draw initial absorbed drug concentration
+    }
+    updatable_person_v = person_v;
+}
+
+void Model::Reset_Person_V() {
+    for (unsigned int i=0; i<n_total; i++){
+        // draw initial parasite count
+        const auto &prm_log10_pc_max = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::LOG10_PC_MAX);
+        double total = rand_gen->Rand_Uniform(1,9) * pow(10,
+                                                         rand_gen->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
+        unsigned short mean_age = (unsigned short)rand_gen->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
+        unsigned short sd_age = (unsigned short)rand_gen->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
+
+
+        person_v[i]->Reset_Person(this, total, mean_age, sd_age);
         // draw initial absorbed drug concentration
     }
     updatable_person_v = person_v;
@@ -140,10 +175,11 @@ const double Model::Calculate_Negative_Log_Likelihood()  {
     unsigned trial_total = trial->Get_Pop_Size();
     double prob = (double)sim_cured / (double)n_total;
 //    negative_log_likelihood = -(log( rand_gen->PDF_Binomial(trial_cured, trial_total, prob) + 1e-8));
-    negative_log_likelihood = -(log(pow(prob, trial_cured) + 1e-8) + log(pow(1.0 - prob, trial_total - trial_cured) + 1e-8));
+    negative_log_likelihood = -(log(pow(prob, trial_cured) + Helper::LOG_CONST) + log(pow(1.0 - prob, trial_total - trial_cured) + Helper::LOG_CONST));
     return negative_log_likelihood;
 }
 
 const double Model::Get_Negative_Log_Likelihood() const {
     return negative_log_likelihood;
 }
+

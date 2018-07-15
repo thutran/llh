@@ -27,6 +27,18 @@ Person::Person(Model *model, const double &total_parasite_count, const unsigned 
     updatable = true;
 }
 
+void Person::Reset_Person(Model *model, const double &total_parasite_count, const unsigned short &mean_age,
+                          const unsigned short &parasite_count_sd) {
+    Helper::DeleteVector<Drug*>(drug_v);
+    if (this->model != model){
+        this->model = model;
+        new_dose_hour_v = model->Get_Trial()->Get_New_Dose_Hour_V();
+    }
+    Reset_Parasite_Clone(total_parasite_count, mean_age, parasite_count_sd);
+    Init_Drug_V();
+    updatable = true;
+}
+
 Person::~Person() {
     Helper::DeletePointer<ParasiteClone>(parsite_clone);
     Helper::DeleteVector<Drug*>(drug_v);
@@ -52,8 +64,7 @@ void Person::Init_Parasite_Clone() {
 //    unsigned short sd_age = (unsigned short)rgen->Rand_Normal(prm_pa_sd, 3);
     unsigned short mean_age = (unsigned short)rgen->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
     unsigned short sd_age = (unsigned short)rgen->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
-//    std::cout << mean_age << " " << sd_age << std::endl;
-//    std::cout << " total: " << total << " ";
+
     parsite_clone = new ParasiteClone(this, total, mean_age , sd_age);
 }
 
@@ -64,6 +75,12 @@ void Person::Init_Parasite_Clone(const double &total_parasite_count, const unsig
 
     parsite_clone = new ParasiteClone(this, total_parasite_count, mean_age, parasite_count_sd);
 }
+
+void Person::Reset_Parasite_Clone(const double &total_parasite_count, const unsigned short &mean_age,
+                                  const unsigned short &parasite_count_sd) {
+    parsite_clone->Reset_ParasiteClone(this, total_parasite_count, mean_age, parasite_count_sd);
+}
+
 
 void Person::Init_Drug_V() {
     const RandomGenerator *rgen = model->Get_RandomGenerator();
@@ -141,8 +158,4 @@ const bool Person::Is_Cured() const {
 const bool Person::Is_Updatable() const {
     return updatable;
 }
-
-
-
-
 
