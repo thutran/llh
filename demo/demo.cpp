@@ -49,7 +49,6 @@ double my_f(const gsl_vector * x, void * prm){
             } else {
 //                m = new Model(trial, param); // TODO reuse population
                 m = new Model(trial, param, random_generator); // TODO reuse population
-                std::cout << "new model\n";
             }
 //            m = new Model(trial, param, random_generator); // TODO reuse population
             m->Run();
@@ -268,7 +267,7 @@ int main(int argc, char* argv[]) {
 //                         std::vector<double >({0.3}));
 
     // print csv format
-    std::cout << "pmax_AM,pmax_LM,sum_negll" << std::endl;
+    /*std::cout << "pmax_AM,pmax_LM,sum_negll" << std::endl;
     double pm_am=0.00, pm_lm=0.00, step=0.001;
     while (pm_am < 1.0){
         while (pm_lm < 1.0){
@@ -288,83 +287,151 @@ int main(int argc, char* argv[]) {
         }
         pm_lm=0.0;
         pm_am += step;
-    }
+    }*/
 
 
     // gsl minimizer
-    /*param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
+    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
                                                       (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1 }));//,
 //                                                      (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIGMA }));
     unsigned search_dim = 2;
-    std::vector<double > search_init_values({0.6, 0.4});
+    std::vector<double > search_init_values({0.5, 0.5});
     std::vector<double > search_step_size({0.2391, 0.1242});
 
-    *//*param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0}));
-    unsigned search_dim = 1;
-    std::vector<double > search_init_values({0.5});
-    std::vector<double > search_step_size({0.2});*//*
+//    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0}));
+//    unsigned search_dim = 1;
+//    std::vector<double > search_init_values({0.5});
+//    std::vector<double > search_step_size({0.2});
+
+    double i_am=0.0, i_lm=0.0, step=0.1;
+    std::cout << "init_AM,init_LM,iteration,result_AM,result_LM,negll\n" ;
+    while (i_am<1.1){
+        search_init_values[0] = i_am;
+        i_lm = 0.0;
+        while (i_lm < 1.1){
+            search_init_values[1] = i_lm;
 
 
-    std::cout << "iteration\t" << "pmaxAM\t" << "pmaxLM\t" << "negll\t" << "simplexSize" << std::endl;
+            int iter = 0;
+            int status;
 
-    int iter = 0;
-    int status;
+            const gsl_multimin_fminimizer_type *T = gsl_multimin_fminimizer_nmsimplex2; // type
+            gsl_multimin_fminimizer *s = nullptr;
+            gsl_multimin_function my_func;
+            gsl_vector *x, *step_size;
 
-    const gsl_multimin_fminimizer_type *T = gsl_multimin_fminimizer_nmsimplex2; // type
-    gsl_multimin_fminimizer *s = nullptr;
-    gsl_multimin_function my_func;
-    gsl_vector *x, *step_size;
+            my_func.n = search_dim;
+            my_func.f = &my_f;
+            my_func.params = param;
 
-    my_func.n = search_dim;
-    my_func.f = &my_f;
-    my_func.params = param;
-
-    // Starting point, x = (5,7)
-    x = gsl_vector_alloc (search_dim); // candidate params
-    for (unsigned i=0; i<search_dim; ++i){
-        gsl_vector_set (x, i, search_init_values[i]); // pmax LM
-    }
-
-    step_size = gsl_vector_alloc (search_dim); // define stepsize for each dimension
-    for (unsigned i=0; i<search_dim; ++i){
-        gsl_vector_set (step_size, i, search_step_size[i]);
-    }
-
-    s = gsl_multimin_fminimizer_alloc (T, search_dim); // allocation
-    gsl_multimin_fminimizer_set (s, &my_func, x, step_size); // "f" is then evaluated 1+search_dim times inside set method of the minimizer type class
-
-    do
-    {
-        iter++;
-        status = gsl_multimin_fminimizer_iterate (s);
-
-        if (status)
-            break;
-
-        status = gsl_multimin_test_size (s->size, 1e-8);
-
-//            param->Print();
-        if (iter % 10 == 0 || status == GSL_SUCCESS){
-//            std::cout << "cured: " << model_cured << std::endl;
-            printf("%5d \t", iter);
-            for (unsigned i=0; i<x->size; ++i){
-                printf("%.10f \t", gsl_vector_get (s->x, i));
+            // Starting point, x = (5,7)
+            x = gsl_vector_alloc (search_dim); // candidate params
+            for (unsigned i=0; i<search_dim; ++i){
+                gsl_vector_set (x, i, search_init_values[i]); // pmax LM
             }
-            printf ("%.8f \t %.10f", s->fval, s->size );
-            if (status == GSL_SUCCESS)
-                printf("%s\n", " *** ");
-            else
-                printf("\n");
 
+            step_size = gsl_vector_alloc (search_dim); // define stepsize for each dimension
+            for (unsigned i=0; i<search_dim; ++i){
+                gsl_vector_set (step_size, i, search_step_size[i]);
+            }
+
+            s = gsl_multimin_fminimizer_alloc (T, search_dim); // allocation
+            gsl_multimin_fminimizer_set (s, &my_func, x, step_size); // "f" is then evaluated 1+search_dim times inside set method of the minimizer type class
+
+            do
+            {
+                iter++;
+                status = gsl_multimin_fminimizer_iterate (s);
+
+                if (status)
+                    break;
+
+                status = gsl_multimin_test_size (s->size, 1e-8);
+
+                if (status == GSL_SUCCESS){
+                    for (unsigned i=0; i<x->size; ++i){
+                        printf("%.3f%c", search_init_values[i], ',');
+                    }
+                    printf("%3d%c", iter, ',');
+                    for (unsigned i=0; i<x->size; ++i){
+                        printf("%.10f%c", gsl_vector_get (s->x, i), ',');
+                    }
+                    printf ("%.10f\n", s->fval);
+                }
+
+            } while (status == GSL_CONTINUE && iter < 200);
+
+            gsl_multimin_fminimizer_free (s);
+            gsl_vector_free (x);
+            gsl_vector_free (step_size);
+
+
+            i_lm += step;
         }
-    } while (status == GSL_CONTINUE && iter < 200);
+        i_am += step;
+    }
 
-    gsl_multimin_fminimizer_free (s);
-    gsl_vector_free (x);
-    gsl_vector_free (step_size);
-
-    std::cout << "Elapsed time (sec): " << sw.ElapsedSec() << std::endl;
-*/
+//    std::cout << "iteration\t" << "pmaxAM\t" << "pmaxLM\t" << "negll\t" << "simplexSize" << std::endl;
+////    std::cout << "init_AM,init_LM,iteration,result_AM,result_LM,negll\n" ;
+//
+//    int iter = 0;
+//    int status;
+//
+//    const gsl_multimin_fminimizer_type *T = gsl_multimin_fminimizer_nmsimplex2; // type
+//    gsl_multimin_fminimizer *s = nullptr;
+//    gsl_multimin_function my_func;
+//    gsl_vector *x, *step_size;
+//
+//    my_func.n = search_dim;
+//    my_func.f = &my_f;
+//    my_func.params = param;
+//
+//    // Starting point, x = (5,7)
+//    x = gsl_vector_alloc (search_dim); // candidate params
+//    for (unsigned i=0; i<search_dim; ++i){
+//        gsl_vector_set (x, i, search_init_values[i]); // pmax LM
+//    }
+//
+//    step_size = gsl_vector_alloc (search_dim); // define stepsize for each dimension
+//    for (unsigned i=0; i<search_dim; ++i){
+//        gsl_vector_set (step_size, i, search_step_size[i]);
+//    }
+//
+//    s = gsl_multimin_fminimizer_alloc (T, search_dim); // allocation
+//    gsl_multimin_fminimizer_set (s, &my_func, x, step_size); // "f" is then evaluated 1+search_dim times inside set method of the minimizer type class
+//
+//    do
+//    {
+//        iter++;
+//        status = gsl_multimin_fminimizer_iterate (s);
+//
+//        if (status)
+//            break;
+//
+//        status = gsl_multimin_test_size (s->size, 1e-8);
+//
+////            param->Print();
+//        if (iter % 10 == 0 || status == GSL_SUCCESS){
+////            std::cout << "cured: " << model_cured << std::endl;
+//            printf("%5d \t", iter);
+//            for (unsigned i=0; i<x->size; ++i){
+//                printf("%.10f \t", gsl_vector_get (s->x, i));
+//            }
+//            printf ("%.8f \t %.10f", s->fval, s->size );
+//            if (status == GSL_SUCCESS)
+//                printf("%s\n", " *** ");
+//            else
+//                printf("\n");
+//        }
+//
+//
+//    } while (status == GSL_CONTINUE && iter < 200);
+//
+//    gsl_multimin_fminimizer_free (s);
+//    gsl_vector_free (x);
+//    gsl_vector_free (step_size);
+//
+//    std::cout << "Elapsed time (sec): " << sw.ElapsedSec() << std::endl;
 
 
 //    test_model();
