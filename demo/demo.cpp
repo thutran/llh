@@ -263,8 +263,6 @@ int main(int argc, char* argv[]) {
     trial_v.emplace_back(new Trial(102, 85, act_al, std::vector<unsigned int>({0,8,24,48})));
 
     ParamNS::Param *param = new ParamNS::Param(2); // default param set with 2 drugs
-//    param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
-//                         std::vector<double >({0.3}));
 
     // print csv format
     /*std::cout << "pmax_AM,pmax_LM,sum_negll" << std::endl;
@@ -291,25 +289,29 @@ int main(int argc, char* argv[]) {
 
 
     // gsl minimizer
-    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
-                                                      (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1 }));//,
-//                                                      (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIGMA }));
-    unsigned search_dim = 2;
-    std::vector<double > search_init_values({0.5, 0.5});
-    std::vector<double > search_step_size({0.2391, 0.1242});
+    param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
+                         std::vector<double >({0.11}));
 
-//    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0}));
-//    unsigned search_dim = 1;
-//    std::vector<double > search_init_values({0.5});
-//    std::vector<double > search_step_size({0.2});
+//    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
+//                                                      (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1 }));//,
+////                                                      (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIGMA }));
+//    unsigned search_dim = 2;
+//    std::vector<double > search_init_values({0.5, 0.5});
+//    std::vector<double > search_step_size({0.2391, 0.1242});
 
-    double i_am=0.0, i_lm=0.0, step=0.1;
-    std::cout << "init_AM,init_LM,iteration,result_AM,result_LM,negll\n" ;
+    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0}));
+    unsigned search_dim = 1;
+    std::vector<double > search_init_values({0.5});
+    std::vector<double > search_step_size({0.09231});
+
+    double i_am=0.0, i_lm=0.0, step=0.01;
+//    std::cout << "init_AM,init_LM,iteration,result_AM,result_LM,negll\n" ;
+    std::cout << "init_AM,iteration,pmax_AM,negll\n" ;
     while (i_am<1.1){
         search_init_values[0] = i_am;
-        i_lm = 0.0;
-        while (i_lm < 1.1){
-            search_init_values[1] = i_lm;
+//        i_lm = 0.0;
+//        while (i_lm < 1.1){
+//            search_init_values[1] = i_lm;
 
 
             int iter = 0;
@@ -366,8 +368,8 @@ int main(int argc, char* argv[]) {
             gsl_vector_free (step_size);
 
 
-            i_lm += step;
-        }
+//            i_lm += step;
+//        }
         i_am += step;
     }
 
