@@ -306,7 +306,7 @@ int main(int argc, char* argv[]) {
 
     double i_am=0.0, i_lm=0.0, step=0.01;
 //    std::cout << "init_AM,init_LM,iteration,result_AM,result_LM,negll\n" ;
-    std::cout << "init_AM,iteration,pmax_AM,negll\n" ;
+    std::cout << "step_size,init_AM,iteration,pmax_AM,pmax_LM,sum_negll\n" ;
     while (i_am<1.1){
         search_init_values[0] = i_am;
         i_lm = 0.08;
@@ -352,13 +352,14 @@ int main(int argc, char* argv[]) {
                 status = gsl_multimin_test_size (s->size, 1e-8);
 
                 if (status == GSL_SUCCESS){
-                    for (unsigned i=0; i<x->size; ++i){
-                        printf("%.3f%c", search_init_values[i], ',');
-                    }
+                    printf("%.5f%c", search_step_size[0], ',');
+                    printf("%.3f%c", search_init_values[0], ',');
                     printf("%3d%c", iter, ',');
-                    for (unsigned i=0; i<x->size; ++i){
-                        printf("%.10f%c", gsl_vector_get (s->x, i), ',');
-                    }
+
+                    printf("%.10f%c", gsl_vector_get (s->x, 0), ',');
+
+                    printf("%.3f%c", i_lm, ',');
+
                     printf ("%.10f\n", s->fval);
                 }
 
