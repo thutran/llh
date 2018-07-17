@@ -289,8 +289,8 @@ int main(int argc, char* argv[]) {
 
 
     // gsl minimizer
-    param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
-                         std::vector<double >({0.11}));
+//    param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
+//                         std::vector<double >({0.11}));
 
 //    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
 //                                                      (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1 }));//,
@@ -309,9 +309,10 @@ int main(int argc, char* argv[]) {
     std::cout << "init_AM,iteration,pmax_AM,negll\n" ;
     while (i_am<1.1){
         search_init_values[0] = i_am;
-//        i_lm = 0.0;
-//        while (i_lm < 1.1){
-//            search_init_values[1] = i_lm;
+        i_lm = 0.08;
+        while (i_lm < 0.25){
+            param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
+                                 std::vector<double >({i_lm}));
 
 
             int iter = 0;
@@ -368,8 +369,8 @@ int main(int argc, char* argv[]) {
             gsl_vector_free (step_size);
 
 
-//            i_lm += step;
-//        }
+            i_lm += step;
+        }
         i_am += step;
     }
 
