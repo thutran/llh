@@ -10,6 +10,7 @@
 #include "RandomGenerator.h"
 #include "Helper.h"
 #include "Drug.h"
+#include "RandomGeneratorSingleton.h"
 
 ParasiteClone::ParasiteClone(Person *person) : person(person){
     Distribute_To_Bins(ParamNS::DEFAULT_TOTAL_PARASITE_COUNT,
@@ -65,7 +66,8 @@ const double ParasiteClone::Get_Total_Parasite_Count() {
 void ParasiteClone::Init_Max_Affected_Fraction_Bins() {
     max_affected_fraction_bins.reserve(ParamNS::MAX_PARASITE_HOUR);
     max_affected_fraction_bins.emplace_back(0); // new-borns are assumed to be new wave of parasites, so the effect of drug is considered to be too little
-    const RandomGenerator *rgen = person->Get_Model()->Get_RandomGenerator();
+//    const RandomGenerator *rgen = person->Get_Model()->Get_RandomGenerator();
+    const RandomGeneratorSingleton *rgen = RandomGeneratorSingleton::Get_RandomGeneratorSingleton();
     for (unsigned short i=1; i<ParamNS::MAX_PARASITE_HOUR; i++){
         max_affected_fraction_bins.emplace_back( rgen->Rand_Beta(ParamNS::MAX_PARASITE_HOUR - i, i) );
     }
@@ -74,7 +76,8 @@ void ParasiteClone::Init_Max_Affected_Fraction_Bins() {
 void ParasiteClone::Reset_Max_Affected_Fraction_Bins() {
 //    max_affected_fraction_bins.reserve(ParamNS::MAX_PARASITE_HOUR);
     max_affected_fraction_bins[0]=0.0; // new-borns are assumed to be new wave of parasites, so the effect of drug is considered to be too little
-    const RandomGenerator *rgen = person->Get_Model()->Get_RandomGenerator();
+//    const RandomGenerator *rgen = person->Get_Model()->Get_RandomGenerator();
+    const RandomGeneratorSingleton *rgen = RandomGeneratorSingleton::Get_RandomGeneratorSingleton();
     for (unsigned short i=1; i<ParamNS::MAX_PARASITE_HOUR; i++){
         max_affected_fraction_bins[i] = rgen->Rand_Beta(ParamNS::MAX_PARASITE_HOUR - i, i) ;
     }
@@ -87,7 +90,8 @@ void ParasiteClone::Distribute_To_Bins(const double &total_parasite_count,
     std::vector<double> age_prob_v; // probability of parasites being distributed into a specific age bin
     age_prob_v.reserve(ParamNS::MAX_PARASITE_HOUR);
     parasite_count_bins = std::vector<double>(ParamNS::MAX_PARASITE_HOUR,0); // initialize 48 bins
-    const RandomGenerator *rgen = person->Get_Model()->Get_RandomGenerator();
+//    const RandomGenerator *rgen = person->Get_Model()->Get_RandomGenerator();
+    const RandomGeneratorSingleton *rgen = RandomGeneratorSingleton::Get_RandomGeneratorSingleton();
     // fill age_prob_v
     for (unsigned short i=0; i<ParamNS::MAX_PARASITE_HOUR; i++){
         age_prob_v.emplace_back(rgen->PDF_Normal(i, mean_age, std_deviation));
@@ -121,7 +125,8 @@ void ParasiteClone::Reset_Bins(const double &total_parasite_count, const unsigne
                                const unsigned short &std_deviation) {
     total_count = total_parasite_count;
     std::vector<double> age_prob_v(ParamNS::MAX_PARASITE_HOUR,0); // probability of parasites being distributed into a specific age bin
-    const RandomGenerator *rgen = person->Get_Model()->Get_RandomGenerator();
+//    const RandomGenerator *rgen = person->Get_Model()->Get_RandomGenerator();
+    const RandomGeneratorSingleton *rgen = RandomGeneratorSingleton::Get_RandomGeneratorSingleton();
     // fill age_prob_v
     for (unsigned short i=0; i<ParamNS::MAX_PARASITE_HOUR; ++i){
         age_prob_v[i] = rgen->PDF_Normal(i, mean_age, std_deviation);

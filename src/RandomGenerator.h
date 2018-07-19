@@ -11,10 +11,6 @@ class Model;
 
 class RandomGenerator {
 public:
-    const gsl_rng_type * RNG_T = gsl_rng_mt19937; // type of random number generator
-    gsl_rng *rng;
-    unsigned int seed;
-    Model *model;
 
     Model *Get_Model() const;
 
@@ -35,6 +31,12 @@ public:
     void Rand_Multinomial(const unsigned int &n_draw, const unsigned int &n_total, double prob_v[],
                           unsigned int result_v[]) const ;
     double PDF_Binomial(const unsigned& k, const unsigned& size, const double& prob) const ;
+
+private:
+    const gsl_rng_type * RNG_T = gsl_rng_mt19937; // type of random number generator
+    gsl_rng *rng;
+    unsigned int seed;
+    Model *model;
 };
 
 

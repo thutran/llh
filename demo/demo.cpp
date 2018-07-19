@@ -3,6 +3,7 @@
 #include <cmath>
 #include <gsl/gsl_multimin.h>
 #include <gsl/gsl_vector.h>
+#include <RandomGeneratorSingleton.h>
 
 #include "StopWatch.h"
 #include "cxxopts.hpp"
@@ -18,23 +19,17 @@
 #include "Param.h"
 #include "Drug.h"
 #include "Trial.h"
-//#include "Person.h"
 #include "RandomGenerator.h"
-//#include "ParasiteClone.h"
 
 Model *m;
-//Trial *trial;
 std::vector<Trial*> trial_v;
-RandomGenerator *random_generator;
+RandomGeneratorSingleton *rgs;
 
 unsigned model_cured = 0;
 
 double my_f(const gsl_vector * x, void * prm){
     extern Model *m;
-//    extern Trial *trial;
-//    extern ParamNS::Param *param;
     extern std::vector<Trial*> trial_v;
-    extern RandomGenerator *random_generator;
 
     double sum_nll = 0.0;
     auto *param = (ParamNS::Param*) prm;
@@ -44,11 +39,10 @@ double my_f(const gsl_vector * x, void * prm){
     if (param->Is_Good()){
         for (auto trial : trial_v){
             if (m != nullptr) {
-                m->Reset_Model(trial, param, random_generator);
+                m->Reset_Model(trial, param);
 //                Helper::DeletePointer(m);
             } else {
-//                m = new Model(trial, param); // TODO reuse population
-                m = new Model(trial, param, random_generator); // TODO reuse population
+                m = new Model(trial, param); // TODO reuse population
             }
 //            m = new Model(trial, param, random_generator); // TODO reuse population
             m->Run();
@@ -228,8 +222,9 @@ int main(int argc, char* argv[]) {
 
 
     // setup
-    extern RandomGenerator *random_generator;
-    random_generator = new RandomGenerator(1111);
+    extern RandomGeneratorSingleton *rgs;
+    rgs = RandomGeneratorSingleton::Get_RandomGeneratorSingleton(1111);
+
 
     extern std::vector<Trial*> trial_v;
     std::vector<Drug*> act_al;
@@ -265,18 +260,20 @@ int main(int argc, char* argv[]) {
     ParamNS::Param *param = new ParamNS::Param(2); // default param set with 2 drugs
 
     // print csv format
-    /*std::cout << "pmax_AM,pmax_LM,sum_negll" << std::endl;
-    double pm_am=0.00, pm_lm=0.00, step=0.001;
-    while (pm_am < 1.0){
-        while (pm_lm < 1.0){
+    extern Model *m;
+    std::cout << "pmax_AM,pmax_LM,sum_negll" << std::endl;
+    double pm_am=0.00, pm_lm=0.00, step=0.01;
+    while (pm_am < 1.1){
+        while (pm_lm < 1.1){
             param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
                                                               (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
                                  std::vector<double >({pm_am, pm_lm}));
             double sum_nll = 0.0;
             for (auto trial : trial_v){
-                if (m)
-                    Helper::DeletePointer(m);
-                m = new Model(trial, param); // TODO reuse population
+                if (m != nullptr)
+                    m->Reset_Model(trial, param);
+                else
+                    m = new Model(trial, param); // TODO reuse population
                 m->Run();
                 sum_nll += m->Calculate_Negative_Log_Likelihood();
             }
@@ -285,7 +282,7 @@ int main(int argc, char* argv[]) {
         }
         pm_lm=0.0;
         pm_am += step;
-    }*/
+    }
 
 
     // gsl minimizer
@@ -299,7 +296,7 @@ int main(int argc, char* argv[]) {
 //    std::vector<double > search_init_values({0.5, 0.5});
 //    std::vector<double > search_step_size({0.2391, 0.1242});
 
-    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0}));
+/*    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0}));
     unsigned search_dim = 1;
     std::vector<double > search_init_values({0.5});
     std::vector<double > search_step_size({0.09231});
@@ -373,7 +370,7 @@ int main(int argc, char* argv[]) {
             i_lm += step;
         }
         i_am += step;
-    }
+    }*/
 
 //    std::cout << "iteration\t" << "pmaxAM\t" << "pmaxLM\t" << "negll\t" << "simplexSize" << std::endl;
 ////    std::cout << "init_AM,init_LM,iteration,result_AM,result_LM,negll\n" ;

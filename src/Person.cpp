@@ -14,6 +14,7 @@
 #include "RandomGenerator.h"
 #include "Trial.h"
 #include "Drug.h"
+#include "RandomGeneratorSingleton.h"
 
 Person::Person(Model *model) : model(model) {
     Init_Person();
@@ -52,7 +53,8 @@ void Person::Init_Person() {
 }
 
 void Person::Init_Parasite_Clone() {
-    const RandomGenerator *rgen = model->Get_RandomGenerator();
+//    const RandomGenerator *rgen = model->Get_RandomGenerator();
+    const RandomGeneratorSingleton *rgen = RandomGeneratorSingleton::Get_RandomGeneratorSingleton();
     const ParamNS::Param *prm = model->Get_Param_Set();
     auto prm_log10_pc_max = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::LOG10_PC_MAX);
 //    auto prm_pa_mean = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_MEAN);
@@ -83,7 +85,8 @@ void Person::Reset_Parasite_Clone(const double &total_parasite_count, const unsi
 
 
 void Person::Init_Drug_V() {
-    const RandomGenerator *rgen = model->Get_RandomGenerator();
+//    const RandomGenerator *rgen = model->Get_RandomGenerator();
+    const RandomGeneratorSingleton *rgen = RandomGeneratorSingleton::Get_RandomGeneratorSingleton();
     const double drug_sigma = model->Get_Param_Set()->Get_Sigma();
     const std::vector<Drug*> trial_drug_v = model->Get_Trial()->Get_Drug_V();
     const std::vector<double> pmax_v = model->Get_Param_Set()->Get_Pmax_V();

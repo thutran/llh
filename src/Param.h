@@ -40,10 +40,6 @@ namespace ParamNS{
 
     class Param {
     public:
-        std::vector<double> non_pmax_v;
-        std::vector<double> pmax_v; // vector of pmax for each antimalarial in the combination treatment
-        std::vector<unsigned short> search_i; // indices of param to be optimized
-//        unsigned short pmf=10; // parasite multiplicative factor
 
         Param();
         explicit Param(const unsigned short &number_drugs);
@@ -62,6 +58,12 @@ namespace ParamNS{
         const bool Is_Good() const ;
         const bool Has_Good_Pmax() const ;
         const double Get_Non_Pmax_Param(const unsigned short &index) const ;
+
+    private:
+        std::vector<double> non_pmax_v;
+        std::vector<double> pmax_v; // vector of pmax for each antimalarial in the combination treatment
+        std::vector<unsigned short> search_i; // indices of param to be optimized
+//        unsigned short pmf=10; // parasite multiplicative factor
     };
 
 }

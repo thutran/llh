@@ -12,11 +12,6 @@ class Drug;
 
 class ParasiteClone {
 public:
-    Person *person;
-//    bool dirty = true;
-    double total_count;
-    std::vector<double> parasite_count_bins; // parasite count at each age-hour
-    std::vector<double> max_affected_fraction_bins; // age-dependent maximum fraction that can be affected by drug
 
     explicit ParasiteClone(Person *person);
     ParasiteClone(Person *person,
@@ -35,6 +30,14 @@ public:
     const double Get_Total_Parasite_Count()  ;
     void Killed_By_Drug(const std::vector<Drug*>& drug_v);
     void Update_ParasiteClone();
+
+private:
+    Person *person;
+//    bool dirty = true;
+    double total_count;
+    std::vector<double> parasite_count_bins; // parasite count at each age-hour
+    std::vector<double> max_affected_fraction_bins; // age-dependent maximum fraction that can be affected by drug
+
 };
 
 

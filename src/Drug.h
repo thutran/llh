@@ -8,14 +8,6 @@
 
 class Drug {
 public:
-    double concentration;
-    double init_concentration;
-    double halflife;
-    double ln2_over_halflife;
-    double pmax;
-    double ec50;
-    unsigned short slope;
-
     explicit Drug(const double &elimination_halflife_in_hour);
     Drug(const double& initial_concentration, const double& elimination_halflife_in_hour);
     Drug(const double& initial_concentration, const double& elimination_halflife_in_hour,
@@ -29,6 +21,16 @@ public:
     const double Get_Pmax() const ;
     const double Get_Ec50() const ;
     const unsigned short Get_Slope() const ;
+
+private:
+    double concentration;
+    double init_concentration;
+    double halflife;
+    double ln2_over_halflife;
+    double pmax;
+    double ec50;
+    unsigned short slope;
+
 
 };
 

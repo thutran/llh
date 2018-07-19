@@ -13,13 +13,6 @@ class Drug;
 
 class Person {
 public:
-    Model *model;
-    ParasiteClone *parsite_clone;
-    std::vector<unsigned int> new_dose_hour_v;
-    std::vector<Drug*> drug_v;
-//    std::vector<double> pmax_v;
-    bool updatable = true;
-
 
     explicit Person(Model *model);
     Person(Model *model, const double &total_parasite_count, const unsigned short &mean_age,
@@ -41,6 +34,15 @@ public:
     const Model* Get_Model() const ;
     const std::vector<Drug*> Get_Drug_V() const ;
     const bool Is_Updatable() const ;
+
+private:
+    Model *model;
+    ParasiteClone *parsite_clone;
+    std::vector<unsigned int> new_dose_hour_v;
+    std::vector<Drug*> drug_v;
+//    std::vector<double> pmax_v;
+    bool updatable = true;
+
 };
 
 

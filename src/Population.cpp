@@ -7,16 +7,18 @@
 #include "Person.h"
 #include "RandomGenerator.h"
 #include "Helper.h"
+#include "RandomGeneratorSingleton.h"
 
 Population::Population(const unsigned& pop_size, Model *m, ParamNS::Param *param_set, RandomGenerator* random_gen) : model(m),
                                                                                                             param(param_set),
                                                                                                             rand_gen(random_gen),
                                                                                                             population_size(pop_size) {
+    rand_gen_singleton = RandomGeneratorSingleton::Get_RandomGeneratorSingleton();
     for (unsigned int i=0; i<pop_size; ++i){
         // draw initial parasite count
         const auto &prm_log10_pc_max = param_set->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::LOG10_PC_MAX);
-        double total = rand_gen->Rand_Uniform(1,9) * pow(10,
-                                                         rand_gen->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
+        double total = rand_gen_singleton->Rand_Uniform(1,9) * pow(10,
+                                                         rand_gen_singleton->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
 //        double total = 1e10;
 //    const auto &prm_pa_mean = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_MEAN);
 //    const auto &prm_pa_sd = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_SD);
