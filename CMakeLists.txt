@@ -36,15 +36,18 @@ include(ExternalProject)
 set(EXT_INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ext_installed)
 
 # to be passed to the compiler in order to be used in source code
-if (TEST_FAST_FACTORIAL)
-    add_definitions(-DTEST_FF=${TEST_FAST_FACTORIAL})
-endif()
-
+#if (TEST_FAST_FACTORIAL)
+#    add_definitions(-DTEST_FF=${TEST_FAST_FACTORIAL})
+#endif()
 
 
 add_subdirectory(ext)
 add_subdirectory(src)
-add_subdirectory(demo)
+if(${TEST_ON})
+    add_subdirectory(test)
+else()
+    add_subdirectory(demo)
+endif()
 
 # set(SRC "${PROJECT_SOURCE_DIR}/src")
 # include_directories(${SRC})

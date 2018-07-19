@@ -9,15 +9,18 @@
 #include "RandomGenerator.h"
 #include "Helper.h"
 
-RandomGenerator::RandomGenerator() : seed(Helper::MAX_UNSIGNED_INT), model(nullptr) { // special code to signal true random
+RandomGenerator::RandomGenerator() : model(nullptr) { // special code to signal true random
+    this->seed = Helper::MAX_UNSIGNED_INT;
     Init_RandomGenerator();
 }
 
 RandomGenerator::RandomGenerator(const unsigned int &random_seed) : seed(random_seed), model(nullptr){
+//    std::cout << "Random Gen constructor: " << this << std::endl;
     Init_RandomGenerator();
 }
 
-RandomGenerator::RandomGenerator(Model *model) : seed(Helper::MAX_UNSIGNED_INT), model(model){
+RandomGenerator::RandomGenerator(Model *model) : model(model){
+    this->seed = Helper::MAX_UNSIGNED_INT;
     Init_RandomGenerator();
 }
 

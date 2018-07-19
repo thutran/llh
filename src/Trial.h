@@ -13,8 +13,9 @@ class Trial {
 public:
     unsigned int n_total;
     unsigned int n_cured;
+    unsigned int weight;
     std::vector<Drug*> drug_v;
-    std::vector<unsigned int> new_dose_hour_v;
+    std::vector<unsigned> new_dose_hour_v;
 
     Trial(const unsigned int &size, const unsigned int &cured,
           const std::vector<Drug *> &drugs, const std::vector<unsigned int> &drug_intake_hours);

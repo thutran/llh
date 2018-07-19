@@ -6,7 +6,7 @@
 
 Trial::Trial(const unsigned int &size, const unsigned int &cured, const std::vector<Drug *> &drugs,
              const std::vector<unsigned int> &drug_intake_hours) : n_total(size), n_cured(cured), drug_v(drugs), new_dose_hour_v(drug_intake_hours) {
-
+    weight = 1;
 }
 
 Trial::~Trial() {
