@@ -54,14 +54,16 @@ void Person::Init_Person() {
 
 void Person::Init_Parasite_Clone() {
 //    const RandomGenerator *rgen = model->Get_RandomGenerator();
-    const RandomGeneratorSingleton *rgen = RandomGeneratorSingleton::Get_RandomGeneratorSingleton();
+    RandomGeneratorSingleton *rgen = RandomGeneratorSingleton::Get_RandomGeneratorSingleton();
     const ParamNS::Param *prm = model->Get_Param_Set();
-    auto prm_log10_pc_max = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::LOG10_PC_MAX);
+//    auto prm_log10_pc_max = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::LOG10_PC_MAX);
 //    auto prm_pa_mean = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_MEAN);
 //    auto prm_pa_sd = prm->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_SD);
+
 //    double total = rgen->Rand_Uniform(1,9) * pow(10, rgen->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MAX));
-    double total = rgen->Rand_Uniform(1,9) * pow(10,
-                                                 rgen->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
+//    double total = rgen->Rand_Uniform(1,9) * pow(10,
+//                                                 rgen->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
+    double total = pow(10, rgen->Rand_Uniform_Pseudo() );
 //    unsigned short mean_age = (unsigned short)rgen->Rand_Normal(prm_pa_mean, 5);
 //    unsigned short sd_age = (unsigned short)rgen->Rand_Normal(prm_pa_sd, 3);
     unsigned short mean_age = (unsigned short)rgen->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
@@ -72,14 +74,18 @@ void Person::Init_Parasite_Clone() {
 
 void Person::Init_Parasite_Clone(const double &total_parasite_count, const unsigned short &mean_age,
                                  const unsigned short &parasite_count_sd) {
-    // clear if parasite_clone already exists
-    // check bound mean_age, sd
+//    std::cout << "Person total count: " << total_parasite_count << std::endl;
 
+    // clear if parasite_clone already exists ?
+    // check bound mean_age, sd
     parsite_clone = new ParasiteClone(this, total_parasite_count, mean_age, parasite_count_sd);
 }
 
 void Person::Reset_Parasite_Clone(const double &total_parasite_count, const unsigned short &mean_age,
                                   const unsigned short &parasite_count_sd) {
+//    std::cout << "Previvous model negll: " << model->Get_Negative_Log_Likelihood() << std::endl;
+//    std::cout << "Reset person total count: " << total_parasite_count << std::endl;
+
     parsite_clone->Reset_ParasiteClone(this, total_parasite_count, mean_age, parasite_count_sd);
 }
 

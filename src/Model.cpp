@@ -50,22 +50,25 @@ void Model::Init_Model() {
     rand_gen_singleton = RandomGeneratorSingleton::Get_RandomGeneratorSingleton();
     timer = 0;
     person_v.reserve(n_total);
+
+    // pseudo uniform random for log_10_total_parasite_count
+    rand_gen_singleton->Init_Rand_Uniform_Pseudo(8.5, 11.5, 0.5);
 }
 
 void Model::Init_Person_V() {
     for (unsigned int i=0; i<n_total; i++){
         // draw initial parasite count
         const auto &prm_log10_pc_max = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::LOG10_PC_MAX);
-        double total = rand_gen_singleton->Rand_Uniform(1,9) * pow(10,
-                                                         rand_gen_singleton->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
-//        double total = 1e10;
+//        double total = rand_gen_singleton->Rand_Uniform(1,9) * pow(10,
+//                                                         rand_gen_singleton->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
+        double total = pow(10, rand_gen_singleton->Rand_Uniform_Pseudo() );
+        unsigned short mean_age = (unsigned short)rand_gen_singleton->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
+        unsigned short sd_age = (unsigned short)rand_gen_singleton->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
+
 //    const auto &prm_pa_mean = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_MEAN);
 //    const auto &prm_pa_sd = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::PA_SD);
 //    unsigned short mean_age = (unsigned short)rand_gen->Rand_Normal(prm_pa_mean, 5);
 //    unsigned short sd_age = (unsigned short)rand_gen->Rand_Normal(prm_pa_sd, 3);
-        unsigned short mean_age = (unsigned short)rand_gen_singleton->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
-        unsigned short sd_age = (unsigned short)rand_gen_singleton->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
-
 
         person_v.emplace_back(new Person(this, total, mean_age, sd_age));
         // draw initial absorbed drug concentration
@@ -77,11 +80,11 @@ void Model::Reset_Person_V() {
     for (unsigned int i=0; i<n_total; i++){
         // draw initial parasite count
         const auto &prm_log10_pc_max = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::LOG10_PC_MAX);
-        double total = rand_gen_singleton->Rand_Uniform(1,9) * pow(10,
-                                                         rand_gen_singleton->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
+//        double total = rand_gen_singleton->Rand_Uniform(1,9) * pow(10,
+//                                                         rand_gen_singleton->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
+        double total = pow(10, rand_gen_singleton->Rand_Uniform_Pseudo() );
         unsigned short mean_age = (unsigned short)rand_gen_singleton->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
         unsigned short sd_age = (unsigned short)rand_gen_singleton->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
-
 
         person_v[i]->Reset_Person(this, total, mean_age, sd_age);
         // draw initial absorbed drug concentration
