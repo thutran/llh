@@ -59,9 +59,9 @@ void Model::Init_Person_V() {
     for (unsigned int i=0; i<n_total; i++){
         // draw initial parasite count
         const auto &prm_log10_pc_max = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::LOG10_PC_MAX);
-//        double total = rand_gen_singleton->Rand_Uniform(1,9) * pow(10,
-//                                                         rand_gen_singleton->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
-        double total = pow(10, rand_gen_singleton->Rand_Uniform_Pseudo() );
+        double total = rand_gen_singleton->Rand_Uniform(1,9) * pow(10,
+                                                         rand_gen_singleton->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
+//        double total = pow(10, rand_gen_singleton->Rand_Uniform_Pseudo() );
         unsigned short mean_age = (unsigned short)rand_gen_singleton->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
         unsigned short sd_age = (unsigned short)rand_gen_singleton->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
 
@@ -80,9 +80,9 @@ void Model::Reset_Person_V() {
     for (unsigned int i=0; i<n_total; i++){
         // draw initial parasite count
         const auto &prm_log10_pc_max = param->Get_Non_Pmax_Param((unsigned short)ParamNS::Non_Pmax_Param_Enum::LOG10_PC_MAX);
-//        double total = rand_gen_singleton->Rand_Uniform(1,9) * pow(10,
-//                                                         rand_gen_singleton->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
-        double total = pow(10, rand_gen_singleton->Rand_Uniform_Pseudo() );
+        double total = rand_gen_singleton->Rand_Uniform(1,9) * pow(10,
+                                                         rand_gen_singleton->Rand_Uniform(ParamNS::DEFAULT_LOG10_PARASITE_COUNT_MIN, prm_log10_pc_max));
+//        double total = pow(10, rand_gen_singleton->Rand_Uniform_Pseudo() );
         unsigned short mean_age = (unsigned short)rand_gen_singleton->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
         unsigned short sd_age = (unsigned short)rand_gen_singleton->Rand_Uniform(0, ParamNS::MAX_PARASITE_HOUR - 1);
 
@@ -158,8 +158,8 @@ const double Model::Calculate_Negative_Log_Likelihood()  {
     unsigned trial_cured = trial->Get_Cured();
     unsigned trial_total = trial->Get_Pop_Size();
     double prob = (double)sim_cured / (double)n_total;
-    negative_log_likelihood = -(log( rand_gen_singleton->PDF_Binomial(trial_cured, trial_total, prob) + Helper::LOG_CONST));
-//    negative_log_likelihood = -(log(pow(prob, trial_cured) + Helper::LOG_CONST) + log(pow(1.0 - prob, trial_total - trial_cured) + Helper::LOG_CONST));
+//    negative_log_likelihood = -(log( rand_gen_singleton->PDF_Binomial(trial_cured, trial_total, prob) + Helper::LOG_CONST));
+    negative_log_likelihood = -(log(pow(prob, trial_cured) + Helper::LOG_CONST) + log(pow(1.0 - prob, trial_total - trial_cured) + Helper::LOG_CONST));
     return negative_log_likelihood;
 }
 

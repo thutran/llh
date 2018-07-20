@@ -260,11 +260,11 @@ int main(int argc, char* argv[]) {
     ParamNS::Param *param = new ParamNS::Param(2); // default param set with 2 drugs
 
     // print csv format
-    extern Model *m;
+    /*extern Model *m;
     std::cout << "pmax_AM,pmax_LM,sum_negll" << std::endl;
-    double pm_am=0.00, pm_lm=0.00, step=0.01;
-    while (pm_am < 1.1){
-        while (pm_lm < 1.1){
+    double pm_am=0.6029665, pm_lm=0.1093061, step=0.005;
+    while (pm_am == 0.6029665){
+        while (pm_lm == 0.1093061){
             param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
                                                               (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
                                  std::vector<double >({pm_am, pm_lm}));
@@ -278,38 +278,39 @@ int main(int argc, char* argv[]) {
                 sum_nll += m->Calculate_Negative_Log_Likelihood();
             }
             std::cout << pm_am << "," << pm_lm << "," << sum_nll << std::endl ;
-            pm_lm += step;
+            pm_lm += 0.01; //step;
         }
-        pm_lm=0.0;
+        pm_lm=0.09;
         pm_am += step;
-    }
+    }*/
 
 
     // gsl minimizer
 //    param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
 //                         std::vector<double >({0.11}));
 
-//    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
-//                                                      (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1 }));//,
-////                                                      (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIGMA }));
-//    unsigned search_dim = 2;
-//    std::vector<double > search_init_values({0.5, 0.5});
-//    std::vector<double > search_step_size({0.2391, 0.1242});
+    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
+                                                      (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1 }));//,
+//                                                      (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIGMA }));
+    unsigned search_dim = 2;
+    std::vector<double > search_init_values({0.5, 0.5});
+    std::vector<double > search_step_size({0.2391, 0.2391});
 
-/*    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0}));
-    unsigned search_dim = 1;
-    std::vector<double > search_init_values({0.5});
-    std::vector<double > search_step_size({0.09231});
+//    param->Set_Search_I(std::vector<unsigned short>({ (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0}));
+//    unsigned search_dim = 1;
+//    std::vector<double > search_init_values({0.5});
+//    std::vector<double > search_step_size({0.09231});
 
     double i_am=0.0, i_lm=0.0, step=0.01;
-//    std::cout << "init_AM,init_LM,iteration,result_AM,result_LM,negll\n" ;
-    std::cout << "step_size,init_AM,iteration,pmax_AM,pmax_LM,sum_negll\n" ;
-    while (i_am<1.1){
+    std::cout << "step_size,init_AM,init_LM,iteration,pmax_AM,pmax_LM,sum_negll\n" ;
+//    std::cout << "step_size,init_AM,iteration,pmax_AM,pmax_LM,sum_negll\n" ;
+    while (i_am < 1.01){
         search_init_values[0] = i_am;
-        i_lm = 0.08;
-        while (i_lm < 0.25){
-            param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
-                                 std::vector<double >({i_lm}));
+        i_lm = 0.00;
+        while (i_lm < 1.01){
+            search_init_values[1] = i_lm;
+//            param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
+//                                 std::vector<double >({i_lm}));
 
 
             int iter = 0;
@@ -349,15 +350,15 @@ int main(int argc, char* argv[]) {
                 status = gsl_multimin_test_size (s->size, 1e-8);
 
                 if (status == GSL_SUCCESS){
-                    printf("%.5f%c", search_step_size[0], ',');
-                    printf("%.3f%c", search_init_values[0], ',');
-                    printf("%3d%c", iter, ',');
+                    printf("%.5f%c", search_step_size[0], ','); // step size
+                    printf("%.5f%c", search_init_values[0], ','); // init AM
+                    printf("%.5f%c", search_init_values[1], ','); // init LM
+                    printf("%3d%c", iter, ','); // iteration
 
-                    printf("%.10f%c", gsl_vector_get (s->x, 0), ',');
+                    printf("%.10f%c", gsl_vector_get (s->x, 0), ','); // estimated pmax AM
+                    printf("%.10f%c", gsl_vector_get (s->x, 1), ','); // estimated pmax LM
 
-                    printf("%.3f%c", i_lm, ',');
-
-                    printf ("%.10f\n", s->fval);
+                    printf ("%.10f\n", s->fval); // sum neg loglikelihoods
                 }
 
             } while (status == GSL_CONTINUE && iter < 200);
@@ -370,7 +371,7 @@ int main(int argc, char* argv[]) {
             i_lm += step;
         }
         i_am += step;
-    }*/
+    }
 
 //    std::cout << "iteration\t" << "pmaxAM\t" << "pmaxLM\t" << "negll\t" << "simplexSize" << std::endl;
 ////    std::cout << "init_AM,init_LM,iteration,result_AM,result_LM,negll\n" ;
