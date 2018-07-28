@@ -26,6 +26,7 @@ public:
     void Init_Person_V();
     void Run();
     void Tick();
+    unsigned int Get_Total_Pop() const;
     const unsigned int Get_Cure_Number() const ;
     const ParamNS::Param* Get_Param_Set() const ;
     const Trial* Get_Trial() const ;

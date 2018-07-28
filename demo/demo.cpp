@@ -261,18 +261,20 @@ int main(int argc, char* argv[]) {
 
     // print csv format
     extern Model *m;
-    std::cout << "pmax_AM,pmax_LM,sum_negll" << std::endl;
-    double pm_am=0.0001, pm_lm=0.0001, step=0.0001;
+    std::cout << "pmax_AM,pmax_LM,sum_negll,last_cure_rate" << std::endl;
+    double pm_am=0.0001, pm_lm=0.10, step_am=0.1, step_lm=0.01;
     while (pm_am < 1.0001){
-        pm_lm=0.0001;
-        while (pm_lm < 1.0001){
+        while (pm_lm < 0.13){
             param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
                                                               (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
                                  std::vector<double >({pm_am, pm_lm}));
             double sum_nll = 0.000;
             for (auto trial : trial_v){
-                if (m != nullptr)
+                if (m != nullptr){
                     m->Reset_Model(trial, param);
+//                    Helper::DeletePointer(m);
+//                    m = new Model(trial, param);
+                }
                 else
                     m = new Model(trial, param); // TODO reuse population
                 m->Run();
@@ -280,11 +282,14 @@ int main(int argc, char* argv[]) {
             }
             printf("%.5f%c", pm_am, ','); // init AM
             printf("%.5f%c", pm_lm, ','); // init LM
-            printf("%.10f\n", sum_nll); // sum negll
+//            printf("%.10f\n", sum_nll); // sum negll
+            printf("%.10f%c", sum_nll, ','); // sum negll
+            printf("%.5f\n", (double)m->Get_Cure_Number()/ (double)m->Get_Total_Pop() ); // sum negll
 
-            pm_lm += step;
+            pm_lm += step_lm;
         }
-        pm_am += step;
+        pm_lm=0.10;
+        pm_am += step_am;
     }
 
 
@@ -307,14 +312,16 @@ int main(int argc, char* argv[]) {
     std::vector<double > search_step_size({0.09231});*/
 
     // loop Nelder-Mead search with different init conditions
-    /*double i_am=0.55, i_lm=0.09, step_am=0.05, step_lm=0.01;
+    /*double i_am=0.1, i_lm=0.0, step_am=0.1, step_lm=0.1;
     std::cout << "step_size,init_AM,init_LM,iteration,pmax_AM,pmax_LM,sum_negll\n" ;
-//    std::cout << "step_size,init_AM,iteration,pmax_AM,pmax_LM,sum_negll\n" ;
-    while (i_am < 0.76){
+    while (i_am < 1.1){
         search_init_values[0] = i_am;
-        i_lm = 0.09;
-        while (i_lm < 0.11){
+        search_step_size[0] = (i_am < 0.5) ? (0.9 - i_am) : (i_am - 0.1);
+//        search_step_size[0] = 0.00;
+        while (i_lm < 0.1){
             search_init_values[1] = i_lm;
+//            search_step_size[1] = (i_lm < 0.5) ? (0.995 - i_lm) : (i_lm - 0.05);
+            search_step_size[1] = (i_lm < 0.5) ? (0.9 - i_lm) : (i_lm - 0.1);
 //            param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
 //                                 std::vector<double >({i_lm}));
 
@@ -331,7 +338,7 @@ int main(int argc, char* argv[]) {
             my_func.f = &my_f;
             my_func.params = param;
 
-            // Starting point, x = (5,7)
+            // Starting point
             x = gsl_vector_alloc (search_dim); // candidate params
             for (unsigned i=0; i<search_dim; ++i){
                 gsl_vector_set (x, i, search_init_values[i]); // pmax LM
@@ -376,6 +383,7 @@ int main(int argc, char* argv[]) {
 
             i_lm += step_lm;
         }
+        i_lm = 0.0;
         i_am += step_am;
     }*/
 
@@ -440,7 +448,6 @@ int main(int argc, char* argv[]) {
     gsl_vector_free (x);
     gsl_vector_free (step_size);*/
 
-//    std::cout << "Elapsed time (sec): " << sw.ElapsedSec() << std::endl;
 
 
 //    test_model();
@@ -456,6 +463,9 @@ int main(int argc, char* argv[]) {
     std::cout << rng->PDF_Binomial(10, 30, 0.5) << std::endl;
     std::cout << "Elapsed time (microsec): " << ff_sw.ElapsedUs() << std::endl;
     #endif
+
+
+    std::cout << "Elapsed time (sec): " << sw.ElapsedMs() /*sw.ElapsedSec()*/ << std::endl;
 
     return 0;
 }

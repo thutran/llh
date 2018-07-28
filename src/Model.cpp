@@ -171,3 +171,6 @@ RandomGeneratorSingleton *Model::Get_RandomGeneratorSingleton() const {
     return rand_gen_singleton;
 }
 
+unsigned int Model::Get_Total_Pop() const {
+    return n_total;
+}

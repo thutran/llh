@@ -164,12 +164,12 @@ void ParasiteClone::Killed_By_Drug(const std::vector<Drug*>& drug_v) {
     }
 
     const double old_back = round(parasite_count_bins.back());
-    double tmp_total_count = 0.0;
-    double tmp_count = 0.0;
+    double tmp_total_count = 0.0, tmp_count = 0.0, max_affected = 0.0;
     // [] accessor
     for (unsigned short i=ParamNS::MAX_PARASITE_HOUR - 1; i>0; --i){
-        double max_affected = max_affected_fraction_bins[i];
-        tmp_count = round(parasite_count_bins[i-1] * (max_affected * min_survival + (1.00 -  max_affected)) );
+        max_affected = max_affected_fraction_bins[i];
+//        tmp_count = round(parasite_count_bins[i-1] * (max_affected * min_survival + (1.00 -  max_affected)) );
+        tmp_count = round(parasite_count_bins[i-1] * (1.00 -  max_affected *(1.00 - min_survival)) );
         parasite_count_bins[i] = tmp_count;
         tmp_total_count += tmp_count;
     }
