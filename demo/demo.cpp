@@ -262,9 +262,9 @@ int main(int argc, char* argv[]) {
     // print csv format
     extern Model *m;
     std::cout << "pmax_AM,pmax_LM,sum_negll,last_cure_rate" << std::endl;
-    double pm_am=0.0001, pm_lm=0.10, step_am=0.1, step_lm=0.01;
+    double pm_am=0.000, pm_lm=0.000, step_am=0.005, step_lm=0.01;
     while (pm_am < 1.0001){
-        while (pm_lm < 0.13){
+        while (pm_lm < 1.0001){
             param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
                                                               (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
                                  std::vector<double >({pm_am, pm_lm}));
@@ -288,7 +288,7 @@ int main(int argc, char* argv[]) {
 
             pm_lm += step_lm;
         }
-        pm_lm=0.10;
+        pm_lm=0.000;
         pm_am += step_am;
     }
 
@@ -465,7 +465,7 @@ int main(int argc, char* argv[]) {
     #endif
 
 
-    std::cout << "Elapsed time (sec): " << sw.ElapsedMs() /*sw.ElapsedSec()*/ << std::endl;
+    std::cout << "Elapsed time (sec): " << /*sw.ElapsedMs()*/ sw.ElapsedSec() << std::endl;
 
     return 0;
 }
