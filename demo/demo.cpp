@@ -286,10 +286,10 @@ int main(int argc, char* argv[]) {
             printf("%.10f%c", sum_nll, ','); // sum negll
             printf("%.5f\n", (double)m->Get_Cure_Number()/ (double)m->Get_Total_Pop() ); // sum negll
 
-            pm_lm += step_lm;
+            pm_lm += (pm_lm < 0.200) ? step_lm : 0.05;
         }
         pm_lm=0.000;
-        pm_am += step_am;
+        pm_am += (pm_am > 0.350) ? step_am : 0.05;
     }
 
 
