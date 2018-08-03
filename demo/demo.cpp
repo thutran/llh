@@ -51,7 +51,7 @@ double my_f(const gsl_vector * x, void * prm){
 //            std::cout << m->Get_Cure_Number() << std::endl;
         }
     } else
-        sum_nll += 1000;
+        sum_nll += 1e8;
     return sum_nll;
 }
 
@@ -262,9 +262,9 @@ int main(int argc, char* argv[]) {
     // print csv format
     extern Model *m;
     std::cout << "pmax_AM,pmax_LM,sum_negll,last_cure_rate" << std::endl;
-    double pm_am=0.000, pm_lm=0.000, step_am=0.005, step_lm=0.01;
-    while (pm_am < 1.0001){
-        while (pm_lm < 1.0001){
+    double pm_am=0.000, pm_lm=0.000, step_am=0.001, step_lm=0.001;
+    while (pm_am < 1.01){
+        while (pm_lm < 1.01){
             param->Replace_Param(std::vector<unsigned short>({(unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 0,
                                                               (unsigned short)ParamNS::Non_Pmax_Param_Enum::SIZE + 1}),
                                  std::vector<double >({pm_am, pm_lm}));
@@ -465,6 +465,7 @@ int main(int argc, char* argv[]) {
     #endif
 
 
+//    printf("%.10f\n", std::numeric_limits<double>::min() > -0.01 ? 1.0 : 0.0);
     std::cout << "Elapsed time (sec): " << /*sw.ElapsedMs()*/ sw.ElapsedSec() << std::endl;
 
     return 0;

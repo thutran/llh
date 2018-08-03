@@ -158,7 +158,7 @@ const double Model::Calculate_Negative_Log_Likelihood()  {
     unsigned trial_cured = trial->Get_Cured();
     unsigned trial_total = trial->Get_Pop_Size();
     double prob = (double)sim_cured / (double)n_total;
-    // NOTE: this is where I got it wrong; updated: 2018-07-30
+    // NOTE: this is where I went wrong; updated: 2018-07-30
 //    negative_log_likelihood = -(log( rand_gen_singleton->PDF_Binomial(trial_cured, trial_total, prob) + Helper::LOG_CONST));
 //    negative_log_likelihood = -(log(pow(prob, trial_cured) + Helper::LOG_CONST) + log(pow(1.0 - prob, trial_total - trial_cured) + Helper::LOG_CONST)); // dumb
     negative_log_likelihood = -(trial_cured*log(prob + Helper::LOG_CONST) + (trial_total - trial_cured)*log(1.0 - prob + Helper::LOG_CONST) );

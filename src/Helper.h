@@ -8,6 +8,7 @@
 #include <vector>
 #include <stdexcept>
 #include <iostream>
+#include <limits>
 
 namespace Helper{
     const int MOD = 1000000007;
@@ -16,7 +17,7 @@ namespace Helper{
     const unsigned DEFAULT_RUNTIME = 672;
     const unsigned DEFAULT_POP_SIZE = 100;
     const double E = 2.71828182846;
-    const double LOG_CONST = 1e-9;
+    const double LOG_CONST = std::numeric_limits<double>::min();//1e-9;
 
     template <typename T>
     void DeletePointer(T* p) {
