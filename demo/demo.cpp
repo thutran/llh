@@ -284,7 +284,7 @@ int main(int argc, char* argv[]) {
             printf("%.5f%c", pm_lm, ','); // init LM
 //            printf("%.10f\n", sum_nll); // sum negll
             printf("%.10f%c", sum_nll, ','); // sum negll
-            printf("%.5f\n", (double)m->Get_Cure_Number()/ (double)m->Get_Total_Pop() ); // sum negll
+            printf("%.5f\n", (double)m->Get_Cure_Number()/ (double)m->Get_Total_Pop() ); // cure rate
 
             pm_lm += (pm_lm < 0.200) ? step_lm : 0.05;
         }

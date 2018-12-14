@@ -31,10 +31,13 @@ Person::Person(Model *model, const double &total_parasite_count, const unsigned 
 void Person::Reset_Person(Model *model, const double &total_parasite_count, const unsigned short &mean_age,
                           const unsigned short &parasite_count_sd) {
     Helper::DeleteVector<Drug*>(drug_v);
-    if (this->model != model){
+    /*if (this->model != model){
         this->model = model;
         new_dose_hour_v = model->Get_Trial()->Get_New_Dose_Hour_V();
-    }
+    }*/
+    this->model = model;
+    new_dose_hour_v = model->Get_Trial()->Get_New_Dose_Hour_V();
+
     Reset_Parasite_Clone(total_parasite_count, mean_age, parasite_count_sd);
     Init_Drug_V();
     updatable = true;
@@ -100,10 +103,14 @@ void Person::Init_Drug_V() {
         throw std::runtime_error("Mismatch length pmax parameters and drugs");
     for (unsigned short i=0; i<pmax_v.size(); i++){
         double init_conc = rgen->Rand_Uniform(1.0 - drug_sigma, 1.0 + drug_sigma);
-        double ec50 = rgen->Rand_Uniform(ParamNS::DEFAULT_EC50_MIN, ParamNS::DEFAULT_EC50_MAX);
+
+        /*double ec50 = rgen->Rand_Uniform(ParamNS::DEFAULT_EC50_MIN, ParamNS::DEFAULT_EC50_MAX);
         unsigned short slope = (unsigned short)rgen->Rand_Uniform(ParamNS::DEFAULT_DRUG_SLOPE_MIN, ParamNS::DEFAULT_DRUG_SLOPE_MAX);
         drug_v.emplace_back(new Drug(init_conc, trial_drug_v.at(i)->Get_Halflife(),
-                                  pmax_v.at(i), ec50, slope));
+                                  pmax_v.at(i), ec50, slope));*/
+
+        drug_v.emplace_back(new Drug(init_conc, trial_drug_v[i]->Get_Halflife(),
+                                     pmax_v[i], trial_drug_v[i]->Get_Ec50(), trial_drug_v[i]->Get_Slope()));
     }
 }
 
@@ -144,7 +151,8 @@ void Person::Update_Person() {
         // update drug
         for (auto& d : drug_v){
             if (new_dose || d->Get_Current_Concentration() > ParamNS::DEFAULT_DRUG_EFFECTIVE_CONC ){
-                d->Update_Concentration(new_dose);
+//                d->Update_Concentration(new_dose);
+                d->Update_Concentration(new_dose, model->Get_Timer());
                 has_drug = true;
             }
 //            std::cout << d->Get_Current_Concentration() << " ";

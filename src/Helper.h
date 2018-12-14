@@ -15,7 +15,7 @@ namespace Helper{
     const unsigned MAX_UNSIGNED_INT = 4294967295;
     const double LN2 = 0.69314718056;
     const unsigned DEFAULT_RUNTIME = 672;
-    const unsigned DEFAULT_POP_SIZE = 100;
+    const unsigned DEFAULT_POP_SIZE = 1000;
     const double E = 2.71828182846;
     const double LOG_CONST = std::numeric_limits<double>::min();//1e-9;
 

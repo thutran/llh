@@ -14,7 +14,7 @@ public:
          const double& pmax, const double& ec50, const unsigned short& slope);
     ~Drug();
 
-    void Update_Concentration(const bool &new_dose);
+    void Update_Concentration(const bool &new_dose, const unsigned &time);
     void Init_Drug();
     const double Get_Current_Concentration() const ;
     const double Get_Halflife() const ;
@@ -25,6 +25,7 @@ public:
 private:
     double concentration;
     double init_concentration;
+    const double init_absorption;
     double halflife;
     double ln2_over_halflife;
     double pmax;
